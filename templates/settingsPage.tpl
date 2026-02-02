@@ -247,6 +247,8 @@
 				</details>
 			</div>
 
+		</div> {* END customSettingsPanel *}
+
 		{* ==================== SAVE BUTTON ==================== *}
 		<div class="ms-save-area">
 			<button type="button" id="saveSettingsBtn" class="ms-btn-save">
