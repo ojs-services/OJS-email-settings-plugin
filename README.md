@@ -33,6 +33,23 @@ Built for **OJS 3.3.x** by [OJS Services](https://ojs-services.com)
 4. Enable the plugin from the Generic Plugins list
 5. Click **Settings** on the plugin, or use the **Email Settings** link in the sidebar
 
+## Screenshots
+
+### Settings Page — Status & Configuration
+![Settings Page](screenshots/settings-page.png)
+
+### SMTP Configuration & Service Presets
+![SMTP Configuration](screenshots/smtp-config.png)
+
+### Gmail Preset with App Password Notice
+![Gmail Preset](screenshots/preset-gmail.png)
+
+### Yandex Mail Preset
+![Yandex Preset](screenshots/preset-yandex.png)
+
+### Test Email & Deliverability Recommendations
+![Test Email](screenshots/test-email.png)
+
 ## Configuration
 
 ### Quick Start with Presets
@@ -59,10 +76,6 @@ Select **Use OJS Default Configuration** and save. The system will immediately f
 The plugin hooks into the OJS mail sending process and takes full control when custom settings are active. It creates its own PHPMailer instance, configures it with your settings, and sends the email directly. When disabled or set to default, OJS behaves exactly as before.
 
 **From address handling:** Many SMTP providers (Gmail, Yandex) reject emails when the From address doesn't match the authenticated account. The plugin automatically rewrites the From address to match your SMTP credentials and preserves the original sender as Reply-To, so replies still go to the right person.
-
-## Screenshots
-
-*Screenshots will be added soon.*
 
 ## Changelog
 
