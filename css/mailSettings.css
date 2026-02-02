@@ -1,0 +1,692 @@
+/**
+ * plugins/generic/mailSettings/css/mailSettings.css
+ *
+ * Copyright (c) 2026 OJS Services (ojs-services.com)
+ * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
+ *
+ * Email Settings Plugin - UI Styles
+ */
+
+/* =========================================================================
+   PAGE CONTAINER
+   ========================================================================= */
+
+#mailSettingsPage {
+	max-width: 880px;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+#mailSettingsPage h1.app__pageHeading {
+	margin-bottom: 6px;
+}
+
+/* =========================================================================
+   STATUS BANNER
+   ========================================================================= */
+
+.ms-status-banner {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+	padding: 14px 18px;
+	border-radius: 8px;
+	margin-bottom: 24px;
+	font-size: 14px;
+	font-weight: 500;
+	transition: all 0.3s ease;
+}
+
+.ms-status-banner.ms-status-custom {
+	background: #E3F2FD;
+	border: 1px solid #90CAF9;
+	color: #1565C0;
+}
+
+.ms-status-banner.ms-status-default {
+	background: #F3E5F5;
+	border: 1px solid #CE93D8;
+	color: #7B1FA2;
+}
+
+.ms-status-icon {
+	font-size: 18px;
+	flex-shrink: 0;
+}
+
+/* Mini Stats in Status Banner */
+.ms-stats-mini {
+	margin-left: auto;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 12px;
+	white-space: nowrap;
+}
+
+.ms-stat-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	cursor: default;
+}
+
+.ms-stat-num {
+	font-weight: 700;
+	font-size: 15px;
+	color: #0D47A1;
+}
+
+.ms-stat-label {
+	font-weight: 400;
+	color: #1976D2;
+	font-size: 11px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.ms-stat-divider {
+	color: #90CAF9;
+	font-weight: 300;
+}
+
+.ms-stats-note {
+	width: 100%;
+	text-align: right;
+	font-size: 10px;
+	color: #64B5F6;
+	margin-top: 2px;
+	font-style: italic;
+}
+
+/* =========================================================================
+   NOTIFICATION
+   ========================================================================= */
+
+.ms-notification {
+	display: none;
+	padding: 14px 18px;
+	border-radius: 8px;
+	margin-bottom: 20px;
+	font-weight: 500;
+	font-size: 14px;
+	animation: ms-slideDown 0.3s ease;
+}
+
+@keyframes ms-slideDown {
+	from { opacity: 0; transform: translateY(-8px); }
+	to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================================
+   SECTION CARDS
+   ========================================================================= */
+
+.ms-card {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 10px;
+	padding: 24px;
+	margin-bottom: 20px;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.ms-card-header {
+	font-size: 15px;
+	font-weight: 700;
+	color: #1a1a2e;
+	margin: 0 0 16px 0;
+	padding-bottom: 12px;
+	border-bottom: 2px solid #f0f0f0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.ms-card-header-icon {
+	font-size: 18px;
+}
+
+/* Sub-header (within a card, after divider) */
+.ms-card-sub-header {
+	font-size: 14px;
+	font-weight: 700;
+	color: #1a1a2e;
+	margin: 0 0 16px 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Divider inside a card */
+.ms-card-divider {
+	border: none;
+	border-top: 1px solid #eee;
+	margin: 24px 0;
+}
+
+/* =========================================================================
+   CONFIG SOURCE OPTIONS
+   ========================================================================= */
+
+.ms-source-option {
+	border: 2px solid #e0e0e0;
+	border-radius: 10px;
+	padding: 18px 20px;
+	margin-bottom: 10px;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+	overflow: hidden;
+}
+
+.ms-source-option:hover {
+	border-color: #b0bec5;
+	background: #fafafa;
+}
+
+.ms-source-option.ms-source-active {
+	border-color: #1976D2;
+	background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+	box-shadow: 0 2px 8px rgba(25,118,210,0.15);
+}
+
+.ms-source-option label {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	cursor: pointer;
+	margin: 0;
+}
+
+.ms-source-option input[type="radio"] {
+	margin-top: 2px;
+	accent-color: #1976D2;
+	width: 18px;
+	height: 18px;
+	flex-shrink: 0;
+}
+
+.ms-source-option .ms-option-title {
+	font-weight: 600;
+	font-size: 14px;
+	color: #1a1a2e;
+}
+
+.ms-source-option .ms-option-desc {
+	color: #666;
+	font-size: 13px;
+	margin-top: 3px;
+	line-height: 1.4;
+}
+
+/* =========================================================================
+   PRESET GRID
+   ========================================================================= */
+
+.ms-preset-grid {
+	display: grid;
+	grid-template-columns: repeat(5, 1fr);
+	gap: 10px;
+}
+
+@media (max-width: 700px) {
+	.ms-preset-grid {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+.ms-preset-card {
+	border: 2px solid #e8e8e8;
+	border-radius: 10px;
+	padding: 16px 10px;
+	text-align: center;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	background: #fff;
+	position: relative;
+}
+
+.ms-preset-card:hover {
+	border-color: #90CAF9;
+	background: #F5F9FF;
+	transform: translateY(-1px);
+	box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+}
+
+.ms-preset-card.ms-preset-active {
+	border-color: #1976D2;
+	background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+	box-shadow: 0 2px 8px rgba(25,118,210,0.15);
+}
+
+.ms-preset-card .ms-preset-icon {
+	font-size: 24px;
+	margin-bottom: 6px;
+	display: block;
+}
+
+.ms-preset-card .ms-preset-name {
+	font-weight: 600;
+	font-size: 12px;
+	color: #333;
+	margin-bottom: 2px;
+}
+
+.ms-preset-card .ms-preset-info {
+	font-size: 10px;
+	color: #999;
+	font-family: monospace;
+}
+
+.ms-preset-note {
+	display: none;
+	margin-top: 12px;
+	padding: 12px 14px;
+	background: #FFF8E1;
+	border: 1px solid #FFE082;
+	border-left: 4px solid #F9A825;
+	border-radius: 6px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #5D4037;
+}
+
+/* =========================================================================
+   FORM ELEMENTS
+   ========================================================================= */
+
+.ms-form-grid {
+	display: grid;
+	gap: 18px;
+}
+
+.ms-form-grid-2 {
+	grid-template-columns: 1fr 1fr;
+}
+
+.ms-form-grid-2-1 {
+	grid-template-columns: 2fr 1fr;
+}
+
+@media (max-width: 600px) {
+	.ms-form-grid-2,
+	.ms-form-grid-2-1 {
+		grid-template-columns: 1fr;
+	}
+}
+
+.ms-form-group label.ms-label {
+	display: block;
+	font-weight: 600;
+	font-size: 13px;
+	color: #444;
+	margin-bottom: 6px;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+}
+
+.ms-form-group .ms-input,
+.ms-form-group .ms-select {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #d0d0d0;
+	border-radius: 6px;
+	font-size: 14px;
+	color: #333;
+	background: #fff;
+	transition: border-color 0.2s, box-shadow 0.2s;
+	box-sizing: border-box;
+}
+
+.ms-form-group .ms-input:focus,
+.ms-form-group .ms-select:focus {
+	border-color: #1976D2;
+	box-shadow: 0 0 0 3px rgba(25,118,210,0.1);
+	outline: none;
+}
+
+.ms-form-group .ms-input-mono {
+	font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+.ms-form-group .ms-hint {
+	color: #888;
+	font-size: 12px;
+	margin-top: 4px;
+}
+
+/* Password field */
+.ms-password-wrap {
+	display: flex;
+	gap: 8px;
+	align-items: stretch;
+}
+
+.ms-password-wrap .ms-input {
+	flex: 1;
+}
+
+.ms-password-toggle {
+	padding: 10px 14px;
+	border: 1px solid #d0d0d0;
+	border-radius: 6px;
+	background: #f5f5f5;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 500;
+	white-space: nowrap;
+	transition: all 0.2s;
+	color: #555;
+}
+
+.ms-password-toggle:hover {
+	background: #e8e8e8;
+	border-color: #bbb;
+}
+
+.ms-password-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	color: #2E7D32;
+	font-size: 12px;
+	margin-top: 6px;
+	font-weight: 500;
+}
+
+.ms-password-status::before {
+	content: '✓';
+	font-weight: bold;
+}
+
+/* =========================================================================
+   ADVANCED SETTINGS
+   ========================================================================= */
+
+.ms-advanced-toggle {
+	cursor: pointer;
+	font-weight: 600;
+	font-size: 14px;
+	color: #444;
+	padding: 14px 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	list-style: none;
+	user-select: none;
+}
+
+.ms-advanced-toggle::-webkit-details-marker {
+	display: none;
+}
+
+.ms-advanced-toggle .ms-chevron {
+	transition: transform 0.2s;
+	font-size: 12px;
+}
+
+details[open] .ms-advanced-toggle .ms-chevron {
+	transform: rotate(90deg);
+}
+
+.ms-advanced-body {
+	padding: 20px;
+	background: #fafafa;
+	border: 1px solid #eee;
+	border-radius: 8px;
+	margin-top: 4px;
+}
+
+.ms-checkbox-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	cursor: pointer;
+	padding: 8px 0;
+	font-size: 14px;
+}
+
+.ms-checkbox-row input[type="checkbox"] {
+	accent-color: #1976D2;
+	width: 16px;
+	height: 16px;
+	flex-shrink: 0;
+}
+
+.ms-danger-badge {
+	display: inline-block;
+	background: #FFEBEE;
+	color: #C62828;
+	font-size: 11px;
+	font-weight: 600;
+	padding: 2px 8px;
+	border-radius: 4px;
+	margin-left: 4px;
+}
+
+/* =========================================================================
+   BUTTONS
+   ========================================================================= */
+
+.ms-save-area {
+	margin-top: 24px;
+	padding-top: 20px;
+	border-top: 2px solid #f0f0f0;
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.ms-btn-save {
+	padding: 12px 32px;
+	background: linear-gradient(135deg, #1976D2 0%, #1565C0 100%);
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	font-size: 15px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+	box-shadow: 0 2px 6px rgba(25,118,210,0.3);
+}
+
+.ms-btn-save:hover {
+	background: linear-gradient(135deg, #1565C0 0%, #0D47A1 100%);
+	box-shadow: 0 4px 12px rgba(25,118,210,0.4);
+	transform: translateY(-1px);
+}
+
+.ms-btn-save:active {
+	transform: translateY(0);
+}
+
+.ms-btn-save:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.ms-save-spinner {
+	display: none;
+	color: #888;
+	font-size: 14px;
+	animation: ms-pulse 1.2s ease infinite;
+}
+
+@keyframes ms-pulse {
+	0%, 100% { opacity: 0.5; }
+	50% { opacity: 1; }
+}
+
+/* =========================================================================
+   TEST EMAIL
+   ========================================================================= */
+
+.ms-test-section {
+	margin-top: 28px;
+	background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
+	border: 1px solid #e0e0e0;
+	border-radius: 10px;
+	padding: 24px;
+}
+
+.ms-test-header {
+	font-size: 15px;
+	font-weight: 700;
+	color: #1a1a2e;
+	margin: 0 0 6px 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.ms-test-desc {
+	color: #888;
+	font-size: 13px;
+	margin-bottom: 18px;
+}
+
+.ms-test-row {
+	display: flex;
+	gap: 12px;
+	align-items: flex-end;
+}
+
+.ms-test-row .ms-form-group {
+	flex: 1;
+	max-width: 380px;
+}
+
+.ms-btn-test {
+	padding: 10px 24px;
+	background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+	color: #fff;
+	border: none;
+	border-radius: 8px;
+	font-size: 14px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s;
+	white-space: nowrap;
+	box-shadow: 0 2px 6px rgba(46,125,50,0.3);
+}
+
+.ms-btn-test:hover {
+	background: linear-gradient(135deg, #1B5E20 0%, #0D3B0E 100%);
+	box-shadow: 0 4px 12px rgba(46,125,50,0.4);
+	transform: translateY(-1px);
+}
+
+.ms-btn-test:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.ms-test-results {
+	display: none;
+	margin-top: 16px;
+	padding: 16px;
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+	font-size: 12px;
+	line-height: 2;
+}
+
+.ms-test-step {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.ms-test-step-info { color: #666; }
+.ms-test-step-success { color: #2E7D32; }
+.ms-test-step-error { color: #C62828; }
+
+.ms-test-final {
+	font-weight: bold;
+	margin-top: 8px;
+	padding-top: 8px;
+	border-top: 1px solid #eee;
+}
+
+/* =========================================================================
+   ENFORCE LOCKED
+   ========================================================================= */
+
+/* =========================================================================
+   CUSTOM PANEL TRANSITION
+   ========================================================================= */
+
+.ms-custom-panel {
+	transition: opacity 0.3s ease;
+}
+
+.ms-custom-panel.ms-hidden {
+	display: none;
+}
+
+/* =========================================================================
+   EMAIL DELIVERABILITY INFO CARD
+   ========================================================================= */
+
+.ms-info-card {
+	border-left: 4px solid #3498db;
+	background: #f0f7ff;
+	margin-top: 28px;
+}
+
+.ms-info-card .ms-card-header {
+	color: #2c3e50;
+}
+
+.ms-info-content p {
+	margin: 0 0 14px;
+	color: #555;
+	font-size: 13px;
+	line-height: 1.6;
+}
+
+.ms-info-items {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	margin-bottom: 14px;
+}
+
+.ms-info-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+	font-size: 13px;
+	color: #444;
+	line-height: 1.5;
+}
+
+.ms-info-badge {
+	flex-shrink: 0;
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 4px;
+	font-size: 11px;
+	font-weight: 700;
+	font-family: monospace;
+	color: #fff;
+	background: #2c3e50;
+	letter-spacing: 0.5px;
+	min-width: 52px;
+	text-align: center;
+}
+
+.ms-info-note {
+	margin: 0 !important;
+	padding-top: 10px;
+	border-top: 1px solid #d4e4f3;
+	font-style: italic;
+	color: #777 !important;
+	font-size: 12px !important;
+}

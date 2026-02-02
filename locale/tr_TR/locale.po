@@ -1,0 +1,282 @@
+msgid "plugins.generic.mailSettings.displayName"
+msgstr "Email Settings Plugin for OJS"
+
+msgid "plugins.generic.mailSettings.description"
+msgstr "E-posta gönderim ayarlarını (SMTP, PHP mail, Sendmail) config.inc.php dosyasını düzenlemeden OJS yönetim panelinden yönetin. Her dergi için bağımsız SMTP yapılandırması, hazır servis ayarları (Gmail, Office 365, Yandex) ve test e-postası gönderme özelliği sunar."
+
+# Sidebar
+msgid "plugins.generic.mailSettings.sidebar.label"
+msgstr "E-posta Ayarları"
+
+# Status
+msgid "plugins.generic.mailSettings.status.label"
+msgstr "Mevcut Durum"
+
+msgid "plugins.generic.mailSettings.status.default"
+msgstr "OJS Varsayılan Yapılandırması Kullanılıyor (config.inc.php)"
+
+msgid "plugins.generic.mailSettings.status.custom"
+msgstr "Özel Mail Ayarları Kullanılıyor"
+
+msgid "plugins.generic.mailSettings.settingsSaved"
+msgstr "Mail ayarları başarıyla kaydedildi."
+
+# Config Source
+msgid "plugins.generic.mailSettings.configSource.title"
+msgstr "Mail Yapılandırma Kaynağı"
+
+msgid "plugins.generic.mailSettings.configSource.default"
+msgstr "OJS Varsayılan Yapılandırmasını Kullan"
+
+msgid "plugins.generic.mailSettings.configSource.defaultDesc"
+msgstr "config.inc.php dosyanızdaki mail ayarları kullanılacaktır. Bu ayarları değiştirmek için sunucu erişimine (FTP/SSH) ihtiyacınız vardır veya sistem yöneticinizle iletişime geçin."
+
+msgid "plugins.generic.mailSettings.configSource.custom"
+msgstr "Özel Mail Ayarlarını Kullan"
+
+msgid "plugins.generic.mailSettings.configSource.customDesc"
+msgstr "Mail gönderim ayarlarını bu panelden yapılandırın. Bu ayarlar config.inc.php mail yapılandırmanızı geçersiz kılacaktır. Eklentiyi devre dışı bırakırsanız veya bu ayarları temizlerseniz, sistem otomatik olarak config.inc.php varsayılanlarına geri dönecektir."
+
+# Mail Method
+msgid "plugins.generic.mailSettings.mailMethod.title"
+msgstr "Mail Gönderim Yöntemi"
+
+msgid "plugins.generic.mailSettings.mailMethod.smtp"
+msgstr "SMTP (Önerilen)"
+
+msgid "plugins.generic.mailSettings.mailMethod.phpmail"
+msgstr "PHP mail()"
+
+msgid "plugins.generic.mailSettings.mailMethod.sendmail"
+msgstr "Sendmail"
+
+# Presets
+msgid "plugins.generic.mailSettings.presets.title"
+msgstr "Hızlı Kurulum — Servis Şablonları"
+
+msgid "plugins.generic.mailSettings.presets.description"
+msgstr "E-posta servis sağlayıcınızı seçerek otomatik yapılandırma yapın veya ayarları manuel girmek için \"Özel SMTP\" seçin."
+
+msgid "plugins.generic.mailSettings.presets.manual"
+msgstr "Manuel giriş"
+
+msgid "plugins.generic.mailSettings.preset.gmail.note"
+msgstr "Gmail, normal şifreniz yerine bir Uygulama Şifresi gerektirir. Önce 2 Adımlı Doğrulamayı etkinleştirin."
+
+msgid "plugins.generic.mailSettings.preset.office365.note"
+msgstr "Office 365, posta kutusu için SMTP AUTH'un etkinleştirilmesini gerektirir."
+
+# SMTP Settings
+msgid "plugins.generic.mailSettings.smtp.title"
+msgstr "SMTP Sunucu Ayarları"
+
+msgid "plugins.generic.mailSettings.smtp.server"
+msgstr "SMTP Sunucu"
+
+msgid "plugins.generic.mailSettings.smtp.port"
+msgstr "SMTP Port"
+
+msgid "plugins.generic.mailSettings.smtp.encryption"
+msgstr "Şifreleme"
+
+msgid "plugins.generic.mailSettings.smtp.noEncryption"
+msgstr "Yok (Önerilmez)"
+
+msgid "plugins.generic.mailSettings.smtp.authType"
+msgstr "Kimlik Doğrulama Türü"
+
+msgid "plugins.generic.mailSettings.smtp.authTypeAuto"
+msgstr "Otomatik Algıla"
+
+# Credentials
+msgid "plugins.generic.mailSettings.credentials.title"
+msgstr "Kimlik Doğrulama"
+
+msgid "plugins.generic.mailSettings.smtp.username"
+msgstr "SMTP Kullanıcı Adı"
+
+msgid "plugins.generic.mailSettings.smtp.password"
+msgstr "SMTP Şifresi"
+
+msgid "plugins.generic.mailSettings.smtp.passwordUnchanged"
+msgstr "••••••••  (değiştirilmedi)"
+
+msgid "plugins.generic.mailSettings.smtp.passwordEnter"
+msgstr "Şifre girin"
+
+msgid "plugins.generic.mailSettings.smtp.passwordSet"
+msgstr "Şifre kayıtlı"
+
+msgid "plugins.generic.mailSettings.smtp.showPassword"
+msgstr "👁 Göster"
+
+# Advanced Settings
+msgid "plugins.generic.mailSettings.advanced.title"
+msgstr "Gelişmiş Ayarlar"
+
+msgid "plugins.generic.mailSettings.advanced.envelopeSender"
+msgstr "Varsayılan Envelope Sender"
+
+msgid "plugins.generic.mailSettings.advanced.envelopeSenderDesc"
+msgstr "Teslim edilemeyen e-postalar için geri dönüş adresi. Genellikle SMTP kullanıcı adınızla aynıdır."
+
+msgid "plugins.generic.mailSettings.advanced.forceEnvelope"
+msgstr "Tüm giden e-postalarda varsayılan envelope sender'ı zorunlu kıl"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcCompliant"
+msgstr "DMARC uyumlu \"Kimden\" başlığını zorunlu kıl"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcDisplayName"
+msgstr "DMARC Görünen Ad Formatı"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcDisplayNameDesc"
+msgstr "Kullanıcı adı için %n, site adı için %s kullanın. Örnek: \"%n via %s\""
+
+msgid "plugins.generic.mailSettings.advanced.suppressCert"
+msgstr "SMTP SSL sertifika doğrulamasını atla"
+
+msgid "plugins.generic.mailSettings.advanced.notRecommended"
+msgstr "Önerilmez"
+
+# Test Mail
+msgid "plugins.generic.mailSettings.test.title"
+msgstr "Test E-postası"
+
+msgid "plugins.generic.mailSettings.test.description"
+msgstr "Mail ayarlarınızın doğru çalıştığını doğrulamak için bir test e-postası gönderin. Test etmeden önce ayarlarınızı kaydettiğinizden emin olun."
+
+msgid "plugins.generic.mailSettings.test.emailLabel"
+msgstr "Alıcı E-posta Adresi"
+
+msgid "plugins.generic.mailSettings.test.send"
+msgstr "Test E-postası Gönder"
+
+msgid "plugins.generic.mailSettings.test.invalidEmail"
+msgstr "Lütfen geçerli bir e-posta adresi girin."
+
+msgid "plugins.generic.mailSettings.test.usingDefault"
+msgstr "OJS varsayılan yapılandırması kullanılıyor (config.inc.php)..."
+
+msgid "plugins.generic.mailSettings.test.usingPhpMail"
+msgstr "PHP mail() fonksiyonu kullanılıyor..."
+
+msgid "plugins.generic.mailSettings.test.usingSendmail"
+msgstr "Sendmail kullanılıyor..."
+
+msgid "plugins.generic.mailSettings.test.connecting"
+msgstr "{$server}:{$port} adresine bağlanılıyor..."
+
+msgid "plugins.generic.mailSettings.test.authenticating"
+msgstr "Kimlik doğrulanıyor..."
+
+msgid "plugins.generic.mailSettings.test.authSuccess"
+msgstr "Kimlik doğrulama başarılı."
+
+msgid "plugins.generic.mailSettings.test.sendSuccess"
+msgstr "{$email} adresine test e-postası başarıyla gönderildi."
+
+msgid "plugins.generic.mailSettings.test.allPassed"
+msgstr "Tüm testler geçti. Mail ayarlarınız doğru çalışıyor."
+
+msgid "plugins.generic.mailSettings.test.failed"
+msgstr "Test başarısız oldu. Lütfen ayarlarınızı kontrol edip tekrar deneyin."
+
+msgid "plugins.generic.mailSettings.test.phpmailerNotFound"
+msgstr "PHPMailer kütüphanesi bulunamadı. Lütfen OJS kurulumunuzu kontrol edin."
+
+msgid "plugins.generic.mailSettings.test.subject"
+msgstr "[{$siteName}] Mail Ayarları Testi"
+
+msgid "plugins.generic.mailSettings.test.emailTitle"
+msgstr "Mail Ayarları Testi - Başarılı"
+
+msgid "plugins.generic.mailSettings.test.emailBody"
+msgstr "Bu, {$siteName} tarafından gönderilen bir test e-postasıdır. Bu e-postayı aldıysanız, mail ayarlarınız doğru yapılandırılmış demektir."
+
+msgid "plugins.generic.mailSettings.test.bodyPlain"
+msgstr "Bu, {$siteName} tarafından gönderilen bir test e-postasıdır. Bu e-postayı aldıysanız, mail ayarlarınız doğru yapılandırılmış demektir."
+
+msgid "plugins.generic.mailSettings.test.method"
+msgstr "Yöntem"
+
+msgid "plugins.generic.mailSettings.test.server"
+msgstr "Sunucu"
+
+msgid "plugins.generic.mailSettings.test.time"
+msgstr "Gönderim zamanı"
+
+msgid "plugins.generic.mailSettings.test.footer"
+msgstr "Bu e-posta, Mail Ayarları eklentisi tarafından test amacıyla gönderilmiştir."
+
+# Test Suggestions
+msgid "plugins.generic.mailSettings.test.suggestion.gmail"
+msgstr "Gmail, normal şifreniz yerine bir Uygulama Şifresi (16 karakter) gerektirir. Önce Google Hesabınızda 2 Adımlı Doğrulamayı etkinleştirin, ardından bir Uygulama Şifresi oluşturun."
+
+msgid "plugins.generic.mailSettings.test.suggestion.office365"
+msgstr "Office 365, Exchange yönetim merkezinde SMTP AUTH'un etkinleştirilmesini gerektirebilir. Çok Faktörlü Kimlik Doğrulama (MFA) da bir Uygulama Şifresi gerektirebilir."
+
+msgid "plugins.generic.mailSettings.test.suggestion.auth"
+msgstr "Lütfen kullanıcı adınızı ve şifrenizi kontrol edin. Kimlik bilgilerinin SMTP sunucunuz için doğru olduğundan emin olun."
+
+msgid "plugins.generic.mailSettings.test.suggestion.connection"
+msgstr "SMTP sunucusuna bağlanılamadı. Lütfen sunucu adresini ve portu kontrol edin. Hosting sağlayıcınız veya güvenlik duvarınız bu port üzerinden giden bağlantıları engelliyor olabilir."
+
+msgid "plugins.generic.mailSettings.test.suggestion.ssl"
+msgstr "SSL/TLS sertifika doğrulaması başarısız oldu. Gelişmiş Ayarlar'da \"SMTP SSL sertifika doğrulamasını atla\" seçeneğini deneyebilirsiniz, ancak bu üretim ortamında önerilmez."
+
+# Errors
+msgid "plugins.generic.mailSettings.error.noAccess"
+msgstr "Mail ayarlarına erişim yetkiniz bulunmamaktadır."
+
+msgid "plugins.generic.mailSettings.error.smtpServerRequired"
+msgstr "Özel SMTP ayarları kullanılırken SMTP sunucu adresi gereklidir."
+
+msgid "plugins.generic.mailSettings.error.csrf"
+msgstr "Güvenlik anahtarı süresi doldu. Lütfen sayfayı yenileyip tekrar deneyin."
+
+msgid "plugins.generic.mailSettings.error.invalidEnvelopeSender"
+msgstr "Zarf gönderici adresi geçerli bir e-posta adresi olmalıdır."
+
+msgid "plugins.generic.mailSettings.test.rateLimited"
+msgstr "Lütfen yeni bir test e-postası göndermeden önce {$seconds} saniye bekleyin."
+
+# Email Deliverability Info
+msgid "plugins.generic.mailSettings.deliverability.title"
+msgstr "E-posta Teslim Edilebilirlik Önerileri"
+
+msgid "plugins.generic.mailSettings.deliverability.intro"
+msgstr "E-postaların alıcılara ulaşmasını ve spam klasörüne düşmemesini sağlamak için sunucu yöneticinizden veya hosting sağlayıcınızdan aşağıdaki DNS kayıtlarını yapılandırmasını isteyin:"
+
+msgid "plugins.generic.mailSettings.deliverability.spf"
+msgstr "SMTP sunucunuzu alan adınız adına e-posta göndermeye yetkilendirir. SPF olmadan, alıcı sunucular e-postalarınızı reddedebilir veya şüpheli olarak işaretleyebilir."
+
+msgid "plugins.generic.mailSettings.deliverability.dkim"
+msgstr "Giden e-postalara dijital imza ekleyerek iletim sırasında değiştirilmediğini kanıtlar. Gelen kutusuna teslim oranlarını önemli ölçüde artırır."
+
+msgid "plugins.generic.mailSettings.deliverability.dmarc"
+msgstr "Alıcı sunuculara SPF/DKIM kontrolünden geçemeyen e-postalarla ne yapacağını bildirir. Alan adınızı kimlik sahteciliği ve oltalama saldırılarına karşı korur."
+
+msgid "plugins.generic.mailSettings.deliverability.note"
+msgstr "Bu ayarlar OJS içinden değil, DNS seviyesinde alan adı/hosting sağlayıcınız tarafından yapılandırılır. SMTP için Gmail veya Yandex gibi bir hizmet kullanıyorsanız, gerekli DNS kayıtları için ilgili hizmetin dokümantasyonuna bakın. Yardım için sunucu yöneticinize başvurun."
+
+# Mail Statistics
+msgid "plugins.generic.mailSettings.stats.today"
+msgstr "bugün"
+
+msgid "plugins.generic.mailSettings.stats.week"
+msgstr "7 gün"
+
+msgid "plugins.generic.mailSettings.stats.month"
+msgstr "30 gün"
+
+msgid "plugins.generic.mailSettings.stats.todayTip"
+msgstr "Bu eklenti üzerinden bugün gönderilen e-postalar"
+
+msgid "plugins.generic.mailSettings.stats.weekTip"
+msgstr "Son 7 günde gönderilen e-postalar"
+
+msgid "plugins.generic.mailSettings.stats.monthTip"
+msgstr "Son 30 günde gönderilen e-postalar"
+
+msgid "plugins.generic.mailSettings.stats.note"
+msgstr "Yalnızca özel e-posta ayarları ile gönderilen e-postaları izler"

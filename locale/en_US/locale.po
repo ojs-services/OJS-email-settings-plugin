@@ -1,0 +1,282 @@
+msgid "plugins.generic.mailSettings.displayName"
+msgstr "Email Settings Plugin for OJS"
+
+msgid "plugins.generic.mailSettings.description"
+msgstr "Manage email delivery settings (SMTP, PHP mail, Sendmail) from the OJS admin panel without editing config.inc.php. Supports per-journal SMTP configuration, service presets (Gmail, Office 365, Yandex), and test email functionality."
+
+# Sidebar
+msgid "plugins.generic.mailSettings.sidebar.label"
+msgstr "Email Settings"
+
+# Status
+msgid "plugins.generic.mailSettings.status.label"
+msgstr "Current Status"
+
+msgid "plugins.generic.mailSettings.status.default"
+msgstr "Using OJS Default Configuration (config.inc.php)"
+
+msgid "plugins.generic.mailSettings.status.custom"
+msgstr "Using Custom Mail Settings"
+
+msgid "plugins.generic.mailSettings.settingsSaved"
+msgstr "Mail settings saved successfully."
+
+# Config Source
+msgid "plugins.generic.mailSettings.configSource.title"
+msgstr "Mail Configuration Source"
+
+msgid "plugins.generic.mailSettings.configSource.default"
+msgstr "Use OJS Default Configuration"
+
+msgid "plugins.generic.mailSettings.configSource.defaultDesc"
+msgstr "Mail settings from your config.inc.php file will be used. To change these settings, you need server access (FTP/SSH) or contact your system administrator."
+
+msgid "plugins.generic.mailSettings.configSource.custom"
+msgstr "Use Custom Mail Settings"
+
+msgid "plugins.generic.mailSettings.configSource.customDesc"
+msgstr "Configure mail delivery settings from this panel. These settings will override your config.inc.php mail configuration. If you disable the plugin or clear these settings, the system will automatically fall back to config.inc.php defaults."
+
+# Mail Method
+msgid "plugins.generic.mailSettings.mailMethod.title"
+msgstr "Mail Delivery Method"
+
+msgid "plugins.generic.mailSettings.mailMethod.smtp"
+msgstr "SMTP (Recommended)"
+
+msgid "plugins.generic.mailSettings.mailMethod.phpmail"
+msgstr "PHP mail()"
+
+msgid "plugins.generic.mailSettings.mailMethod.sendmail"
+msgstr "Sendmail"
+
+# Presets
+msgid "plugins.generic.mailSettings.presets.title"
+msgstr "Quick Setup — Service Presets"
+
+msgid "plugins.generic.mailSettings.presets.description"
+msgstr "Select your email service provider for auto-configuration, or choose \"Custom SMTP\" to enter settings manually."
+
+msgid "plugins.generic.mailSettings.presets.manual"
+msgstr "Enter manually"
+
+msgid "plugins.generic.mailSettings.preset.gmail.note"
+msgstr "Gmail requires an App Password instead of your regular password. Enable 2-Step Verification first."
+
+msgid "plugins.generic.mailSettings.preset.office365.note"
+msgstr "Office 365 requires SMTP AUTH to be enabled for the mailbox."
+
+# SMTP Settings
+msgid "plugins.generic.mailSettings.smtp.title"
+msgstr "SMTP Server Settings"
+
+msgid "plugins.generic.mailSettings.smtp.server"
+msgstr "SMTP Server"
+
+msgid "plugins.generic.mailSettings.smtp.port"
+msgstr "SMTP Port"
+
+msgid "plugins.generic.mailSettings.smtp.encryption"
+msgstr "Encryption"
+
+msgid "plugins.generic.mailSettings.smtp.noEncryption"
+msgstr "None (Not Recommended)"
+
+msgid "plugins.generic.mailSettings.smtp.authType"
+msgstr "Authentication Type"
+
+msgid "plugins.generic.mailSettings.smtp.authTypeAuto"
+msgstr "Auto Detect"
+
+# Credentials
+msgid "plugins.generic.mailSettings.credentials.title"
+msgstr "Authentication"
+
+msgid "plugins.generic.mailSettings.smtp.username"
+msgstr "SMTP Username"
+
+msgid "plugins.generic.mailSettings.smtp.password"
+msgstr "SMTP Password"
+
+msgid "plugins.generic.mailSettings.smtp.passwordUnchanged"
+msgstr "••••••••  (unchanged)"
+
+msgid "plugins.generic.mailSettings.smtp.passwordEnter"
+msgstr "Enter password"
+
+msgid "plugins.generic.mailSettings.smtp.passwordSet"
+msgstr "Password is set"
+
+msgid "plugins.generic.mailSettings.smtp.showPassword"
+msgstr "👁 Show"
+
+# Advanced Settings
+msgid "plugins.generic.mailSettings.advanced.title"
+msgstr "Advanced Settings"
+
+msgid "plugins.generic.mailSettings.advanced.envelopeSender"
+msgstr "Default Envelope Sender"
+
+msgid "plugins.generic.mailSettings.advanced.envelopeSenderDesc"
+msgstr "The bounce address for undelivered emails. Usually the same as your SMTP username."
+
+msgid "plugins.generic.mailSettings.advanced.forceEnvelope"
+msgstr "Force default envelope sender for all outgoing emails"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcCompliant"
+msgstr "Force DMARC compliant \"From\" header"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcDisplayName"
+msgstr "DMARC Display Name Format"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcDisplayNameDesc"
+msgstr "Use %n for user name, %s for site name. Example: \"%n via %s\""
+
+msgid "plugins.generic.mailSettings.advanced.suppressCert"
+msgstr "Suppress SMTP SSL certificate verification"
+
+msgid "plugins.generic.mailSettings.advanced.notRecommended"
+msgstr "Not recommended"
+
+# Test Mail
+msgid "plugins.generic.mailSettings.test.title"
+msgstr "Test Email"
+
+msgid "plugins.generic.mailSettings.test.description"
+msgstr "Send a test email to verify your mail settings are working correctly. Make sure to save your settings first before testing."
+
+msgid "plugins.generic.mailSettings.test.emailLabel"
+msgstr "Recipient Email Address"
+
+msgid "plugins.generic.mailSettings.test.send"
+msgstr "Send Test Email"
+
+msgid "plugins.generic.mailSettings.test.invalidEmail"
+msgstr "Please enter a valid email address."
+
+msgid "plugins.generic.mailSettings.test.usingDefault"
+msgstr "Using OJS default configuration (config.inc.php)..."
+
+msgid "plugins.generic.mailSettings.test.usingPhpMail"
+msgstr "Using PHP mail() function..."
+
+msgid "plugins.generic.mailSettings.test.usingSendmail"
+msgstr "Using Sendmail..."
+
+msgid "plugins.generic.mailSettings.test.connecting"
+msgstr "Connecting to {$server}:{$port}..."
+
+msgid "plugins.generic.mailSettings.test.authenticating"
+msgstr "Authenticating..."
+
+msgid "plugins.generic.mailSettings.test.authSuccess"
+msgstr "Authentication successful."
+
+msgid "plugins.generic.mailSettings.test.sendSuccess"
+msgstr "Test email sent successfully to {$email}."
+
+msgid "plugins.generic.mailSettings.test.allPassed"
+msgstr "All tests passed. Your mail settings are working correctly."
+
+msgid "plugins.generic.mailSettings.test.failed"
+msgstr "Test failed. Please check your settings and try again."
+
+msgid "plugins.generic.mailSettings.test.phpmailerNotFound"
+msgstr "PHPMailer library not found. Please check your OJS installation."
+
+msgid "plugins.generic.mailSettings.test.subject"
+msgstr "[{$siteName}] Mail Settings Test"
+
+msgid "plugins.generic.mailSettings.test.emailTitle"
+msgstr "Mail Settings Test - Successful"
+
+msgid "plugins.generic.mailSettings.test.emailBody"
+msgstr "This is a test email from {$siteName}. If you received this email, your mail settings are configured correctly."
+
+msgid "plugins.generic.mailSettings.test.bodyPlain"
+msgstr "This is a test email from {$siteName}. If you received this email, your mail settings are configured correctly."
+
+msgid "plugins.generic.mailSettings.test.method"
+msgstr "Method"
+
+msgid "plugins.generic.mailSettings.test.server"
+msgstr "Server"
+
+msgid "plugins.generic.mailSettings.test.time"
+msgstr "Sent at"
+
+msgid "plugins.generic.mailSettings.test.footer"
+msgstr "This email was sent by the Mail Settings plugin for testing purposes."
+
+# Test Suggestions
+msgid "plugins.generic.mailSettings.test.suggestion.gmail"
+msgstr "Gmail requires an App Password (16 characters) instead of your regular password. Enable 2-Step Verification in your Google Account first, then generate an App Password."
+
+msgid "plugins.generic.mailSettings.test.suggestion.office365"
+msgstr "Office 365 may require SMTP AUTH to be enabled in the Exchange admin center. Multi-Factor Authentication (MFA) may also require an App Password."
+
+msgid "plugins.generic.mailSettings.test.suggestion.auth"
+msgstr "Please check your username and password. Make sure the credentials are correct for your SMTP server."
+
+msgid "plugins.generic.mailSettings.test.suggestion.connection"
+msgstr "Could not connect to the SMTP server. Please check the server address and port. Your hosting provider or firewall may be blocking outgoing connections on this port."
+
+msgid "plugins.generic.mailSettings.test.suggestion.ssl"
+msgstr "SSL/TLS certificate verification failed. You can try enabling \"Suppress SSL certificate verification\" in Advanced Settings, but this is not recommended for production use."
+
+# Errors
+msgid "plugins.generic.mailSettings.error.noAccess"
+msgstr "You do not have permission to access mail settings."
+
+msgid "plugins.generic.mailSettings.error.smtpServerRequired"
+msgstr "SMTP server address is required when using custom SMTP settings."
+
+msgid "plugins.generic.mailSettings.error.csrf"
+msgstr "Security token expired. Please refresh the page and try again."
+
+msgid "plugins.generic.mailSettings.error.invalidEnvelopeSender"
+msgstr "Envelope sender must be a valid email address."
+
+msgid "plugins.generic.mailSettings.test.rateLimited"
+msgstr "Please wait {$seconds} seconds before sending another test email."
+
+# Email Deliverability Info
+msgid "plugins.generic.mailSettings.deliverability.title"
+msgstr "Email Deliverability Recommendations"
+
+msgid "plugins.generic.mailSettings.deliverability.intro"
+msgstr "To ensure emails reach recipients and avoid spam folders, ask your server administrator or hosting provider to configure the following DNS records for your domain:"
+
+msgid "plugins.generic.mailSettings.deliverability.spf"
+msgstr "Authorizes your SMTP server to send emails on behalf of your domain. Without SPF, receiving servers may reject or flag your emails."
+
+msgid "plugins.generic.mailSettings.deliverability.dkim"
+msgstr "Adds a digital signature to outgoing emails, proving they were not altered in transit. Significantly improves inbox delivery rates."
+
+msgid "plugins.generic.mailSettings.deliverability.dmarc"
+msgstr "Tells receiving servers how to handle emails that fail SPF/DKIM checks. Protects your domain from spoofing and phishing."
+
+msgid "plugins.generic.mailSettings.deliverability.note"
+msgstr "These settings are configured at the DNS level by your domain/hosting provider, not within OJS. If you use a service like Gmail or Yandex for SMTP, their documentation provides the required DNS records. Contact your server administrator for assistance."
+
+# Mail Statistics
+msgid "plugins.generic.mailSettings.stats.today"
+msgstr "today"
+
+msgid "plugins.generic.mailSettings.stats.week"
+msgstr "7 days"
+
+msgid "plugins.generic.mailSettings.stats.month"
+msgstr "30 days"
+
+msgid "plugins.generic.mailSettings.stats.todayTip"
+msgstr "Emails sent today via this plugin"
+
+msgid "plugins.generic.mailSettings.stats.weekTip"
+msgstr "Emails sent in the last 7 days"
+
+msgid "plugins.generic.mailSettings.stats.monthTip"
+msgstr "Emails sent in the last 30 days"
+
+msgid "plugins.generic.mailSettings.stats.note"
+msgstr "Only tracks emails sent via custom mail settings"
