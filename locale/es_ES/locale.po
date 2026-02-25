@@ -1,0 +1,282 @@
+msgid "plugins.generic.mailSettings.displayName"
+msgstr "Plugin de Configuración de Correo para OJS"
+
+msgid "plugins.generic.mailSettings.description"
+msgstr "Gestione la configuración de envío de correo (SMTP, PHP mail, Sendmail) desde el panel de administración de OJS sin editar config.inc.php. Soporta configuración SMTP por revista, ajustes preestablecidos de servicios (Gmail, Office 365, Yandex) y funcionalidad de correo de prueba."
+
+# Sidebar
+msgid "plugins.generic.mailSettings.sidebar.label"
+msgstr "Configuración de Correo"
+
+# Status
+msgid "plugins.generic.mailSettings.status.label"
+msgstr "Estado Actual"
+
+msgid "plugins.generic.mailSettings.status.default"
+msgstr "Usando la configuración predeterminada de OJS (config.inc.php)"
+
+msgid "plugins.generic.mailSettings.status.custom"
+msgstr "Usando configuración de correo personalizada"
+
+msgid "plugins.generic.mailSettings.settingsSaved"
+msgstr "Configuración de correo guardada con éxito."
+
+# Config Source
+msgid "plugins.generic.mailSettings.configSource.title"
+msgstr "Origen de la configuración de correo"
+
+msgid "plugins.generic.mailSettings.configSource.default"
+msgstr "Usar la configuración predeterminada de OJS"
+
+msgid "plugins.generic.mailSettings.configSource.defaultDesc"
+msgstr "Se utilizará la configuración de correo de su archivo config.inc.php. Para cambiar esta configuración, necesita acceso al servidor (FTP/SSH) o contactar a su administrador del sistema."
+
+msgid "plugins.generic.mailSettings.configSource.custom"
+msgstr "Usar configuración de correo personalizada"
+
+msgid "plugins.generic.mailSettings.configSource.customDesc"
+msgstr "Configure los ajustes de envío de correo desde este panel. Estos ajustes anularán la configuración de correo de config.inc.php. Si desactiva el plugin o borra estos ajustes, el sistema volverá automáticamente a los valores predeterminados de config.inc.php."
+
+# Mail Method
+msgid "plugins.generic.mailSettings.mailMethod.title"
+msgstr "Método de envío de correo"
+
+msgid "plugins.generic.mailSettings.mailMethod.smtp"
+msgstr "SMTP (Recomendado)"
+
+msgid "plugins.generic.mailSettings.mailMethod.phpmail"
+msgstr "PHP mail()"
+
+msgid "plugins.generic.mailSettings.mailMethod.sendmail"
+msgstr "Sendmail"
+
+# Presets
+msgid "plugins.generic.mailSettings.presets.title"
+msgstr "Configuración Rápida — Ajustes Preestablecidos"
+
+msgid "plugins.generic.mailSettings.presets.description"
+msgstr "Seleccione su proveedor de servicio de correo electrónico para la autoconfiguración, o elija \"SMTP Personalizado\" para introducir los ajustes manualmente."
+
+msgid "plugins.generic.mailSettings.presets.manual"
+msgstr "Introducir manualmente"
+
+msgid "plugins.generic.mailSettings.preset.gmail.note"
+msgstr "Gmail requiere una Contraseña de Aplicación en lugar de su contraseña habitual. Active primero la Verificación en dos pasos."
+
+msgid "plugins.generic.mailSettings.preset.office365.note"
+msgstr "Office 365 requiere que SMTP AUTH esté habilitado para el buzón de correo."
+
+# SMTP Settings
+msgid "plugins.generic.mailSettings.smtp.title"
+msgstr "Configuración del Servidor SMTP"
+
+msgid "plugins.generic.mailSettings.smtp.server"
+msgstr "Servidor SMTP"
+
+msgid "plugins.generic.mailSettings.smtp.port"
+msgstr "Puerto SMTP"
+
+msgid "plugins.generic.mailSettings.smtp.encryption"
+msgstr "Cifrado"
+
+msgid "plugins.generic.mailSettings.smtp.noEncryption"
+msgstr "Ninguno (No recomendado)"
+
+msgid "plugins.generic.mailSettings.smtp.authType"
+msgstr "Tipo de Autenticación"
+
+msgid "plugins.generic.mailSettings.smtp.authTypeAuto"
+msgstr "Detección Automática"
+
+# Credentials
+msgid "plugins.generic.mailSettings.credentials.title"
+msgstr "Autenticación"
+
+msgid "plugins.generic.mailSettings.smtp.username"
+msgstr "Nombre de usuario SMTP"
+
+msgid "plugins.generic.mailSettings.smtp.password"
+msgstr "Contraseña SMTP"
+
+msgid "plugins.generic.mailSettings.smtp.passwordUnchanged"
+msgstr "••••••••  (sin cambios)"
+
+msgid "plugins.generic.mailSettings.smtp.passwordEnter"
+msgstr "Introducir contraseña"
+
+msgid "plugins.generic.mailSettings.smtp.passwordSet"
+msgstr "La contraseña está configurada"
+
+msgid "plugins.generic.mailSettings.smtp.showPassword"
+msgstr "👁 Mostrar"
+
+# Advanced Settings
+msgid "plugins.generic.mailSettings.advanced.title"
+msgstr "Configuración Avanzada"
+
+msgid "plugins.generic.mailSettings.advanced.envelopeSender"
+msgstr "Remitente de sobre predeterminado (Envelope Sender)"
+
+msgid "plugins.generic.mailSettings.advanced.envelopeSenderDesc"
+msgstr "La dirección de rebote para correos electrónicos no entregados. Por lo general, es la misma que su nombre de usuario SMTP."
+
+msgid "plugins.generic.mailSettings.advanced.forceEnvelope"
+msgstr "Forzar remitente del sobre predeterminado para todos los correos salientes"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcCompliant"
+msgstr "Forzar encabezado \"From\" compatible con DMARC"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcDisplayName"
+msgstr "Formato de nombre para mostrar de DMARC"
+
+msgid "plugins.generic.mailSettings.advanced.dmarcDisplayNameDesc"
+msgstr "Use %n para el nombre de usuario, %s para el nombre del sitio. Ejemplo: \"%n vía %s\""
+
+msgid "plugins.generic.mailSettings.advanced.suppressCert"
+msgstr "Suprimir verificación del certificado SSL del SMTP"
+
+msgid "plugins.generic.mailSettings.advanced.notRecommended"
+msgstr "No recomendado"
+
+# Test Mail
+msgid "plugins.generic.mailSettings.test.title"
+msgstr "Correo de Prueba"
+
+msgid "plugins.generic.mailSettings.test.description"
+msgstr "Envíe un correo electrónico de prueba para verificar que la configuración de correo funcione correctamente. Asegúrese de guardar su configuración primero antes de realizar la prueba."
+
+msgid "plugins.generic.mailSettings.test.emailLabel"
+msgstr "Dirección de Correo Electrónico del Destinatario"
+
+msgid "plugins.generic.mailSettings.test.send"
+msgstr "Enviar Correo de Prueba"
+
+msgid "plugins.generic.mailSettings.test.invalidEmail"
+msgstr "Por favor, introduzca una dirección de correo electrónico válida."
+
+msgid "plugins.generic.mailSettings.test.usingDefault"
+msgstr "Usando configuración predeterminada de OJS (config.inc.php)..."
+
+msgid "plugins.generic.mailSettings.test.usingPhpMail"
+msgstr "Usando función mail() de PHP..."
+
+msgid "plugins.generic.mailSettings.test.usingSendmail"
+msgstr "Usando Sendmail..."
+
+msgid "plugins.generic.mailSettings.test.connecting"
+msgstr "Conectando a {$server}:{$port}..."
+
+msgid "plugins.generic.mailSettings.test.authenticating"
+msgstr "Autenticando..."
+
+msgid "plugins.generic.mailSettings.test.authSuccess"
+msgstr "Autenticación exitosa."
+
+msgid "plugins.generic.mailSettings.test.sendSuccess"
+msgstr "Correo electrónico de prueba enviado exitosamente a {$email}."
+
+msgid "plugins.generic.mailSettings.test.allPassed"
+msgstr "Todas las pruebas pasaron. Su configuración de correo funciona correctamente."
+
+msgid "plugins.generic.mailSettings.test.failed"
+msgstr "La prueba falló. Por favor, compruebe su configuración e inténtelo de nuevo."
+
+msgid "plugins.generic.mailSettings.test.phpmailerNotFound"
+msgstr "No se encontró la librería PHPMailer. Por favor, compruebe su instalación de OJS."
+
+msgid "plugins.generic.mailSettings.test.subject"
+msgstr "[{$siteName}] Prueba de Configuración de Correo"
+
+msgid "plugins.generic.mailSettings.test.emailTitle"
+msgstr "Prueba de Configuración de Correo - Exitosa"
+
+msgid "plugins.generic.mailSettings.test.emailBody"
+msgstr "Este es un correo electrónico de prueba de {$siteName}. Si recibió este correo electrónico, su configuración de correo está configurada correctamente."
+
+msgid "plugins.generic.mailSettings.test.bodyPlain"
+msgstr "Este es un correo electrónico de prueba de {$siteName}. Si recibió este correo electrónico, su configuración de correo está configurada correctamente."
+
+msgid "plugins.generic.mailSettings.test.method"
+msgstr "Método"
+
+msgid "plugins.generic.mailSettings.test.server"
+msgstr "Servidor"
+
+msgid "plugins.generic.mailSettings.test.time"
+msgstr "Enviado a las"
+
+msgid "plugins.generic.mailSettings.test.footer"
+msgstr "Este correo ha sido enviado por el plugin de Configuración de Correo con fines de prueba."
+
+# Test Suggestions
+msgid "plugins.generic.mailSettings.test.suggestion.gmail"
+msgstr "Gmail requiere una Contraseña de Aplicación (16 caracteres) en lugar de su contraseña habitual. Active primero la Verificación en dos pasos en su Cuenta de Google, y luego genere una Contraseña de Aplicación."
+
+msgid "plugins.generic.mailSettings.test.suggestion.office365"
+msgstr "Office 365 puede requerir que SMTP AUTH se habilite en el centro de administración de Exchange. La Autenticación Multifactor (MFA) también puede requerir una Contraseña de Aplicación."
+
+msgid "plugins.generic.mailSettings.test.suggestion.auth"
+msgstr "Por favor, compruebe su nombre de usuario y contraseña. Asegúrese de que las credenciales sean correctas para su servidor SMTP."
+
+msgid "plugins.generic.mailSettings.test.suggestion.connection"
+msgstr "No se pudo conectar al servidor SMTP. Por favor, compruebe la dirección del servidor y el puerto. Su proveedor de hosting o cortafuegos podría estar bloqueando las conexiones salientes en este puerto."
+
+msgid "plugins.generic.mailSettings.test.suggestion.ssl"
+msgstr "La verificación del certificado SSL/TLS falló. Puede intentar habilitar \"Suprimir verificación del certificado SSL\" en Configuración Avanzada, pero esto no se recomienda para uso en producción."
+
+# Errors
+msgid "plugins.generic.mailSettings.error.noAccess"
+msgstr "No tiene permiso para acceder a la configuración de correo."
+
+msgid "plugins.generic.mailSettings.error.smtpServerRequired"
+msgstr "La dirección del servidor SMTP es obligatoria cuando se usa la configuración SMTP personalizada."
+
+msgid "plugins.generic.mailSettings.error.csrf"
+msgstr "Token de seguridad expirado. Por favor, actualice la página e inténtelo de nuevo."
+
+msgid "plugins.generic.mailSettings.error.invalidEnvelopeSender"
+msgstr "El remitente del sobre (Envelope Sender) debe ser una dirección de correo electrónico válida."
+
+msgid "plugins.generic.mailSettings.test.rateLimited"
+msgstr "Por favor, espere {$seconds} segundos antes de enviar otro correo electrónico de prueba."
+
+# Email Deliverability Info
+msgid "plugins.generic.mailSettings.deliverability.title"
+msgstr "Recomendaciones de Entregabilidad de Correos"
+
+msgid "plugins.generic.mailSettings.deliverability.intro"
+msgstr "Para asegurar que los correos lleguen a los destinatarios y evitar las carpetas de spam, pida a su administrador de servidor o proveedor de hosting que configure los siguientes registros DNS para su dominio:"
+
+msgid "plugins.generic.mailSettings.deliverability.spf"
+msgstr "Autoriza a su servidor SMTP a enviar correos en nombre de su dominio. Sin SPF, los servidores receptores pueden rechazar o marcar sus correos."
+
+msgid "plugins.generic.mailSettings.deliverability.dkim"
+msgstr "Añade una firma digital a los correos salientes, demostrando que no fueron alterados en tránsito. Mejora significativamente las tasas de entrega en la bandeja de entrada."
+
+msgid "plugins.generic.mailSettings.deliverability.dmarc"
+msgstr "Indica a los servidores receptores cómo manejar los correos que fallan las comprobaciones SPF/DKIM. Protege su dominio contra la suplantación de identidad (spoofing) y phishing."
+
+msgid "plugins.generic.mailSettings.deliverability.note"
+msgstr "Estos ajustes se configuran a nivel DNS por su proveedor de dominio/hosting, no dentro de OJS. Si utiliza un servicio como Gmail o Yandex para SMTP, su documentación proporciona los registros DNS requeridos. Contacte a su administrador de servidor para obtener ayuda."
+
+# Mail Statistics
+msgid "plugins.generic.mailSettings.stats.today"
+msgstr "hoy"
+
+msgid "plugins.generic.mailSettings.stats.week"
+msgstr "7 días"
+
+msgid "plugins.generic.mailSettings.stats.month"
+msgstr "30 días"
+
+msgid "plugins.generic.mailSettings.stats.todayTip"
+msgstr "Correos enviados hoy mediante este plugin"
+
+msgid "plugins.generic.mailSettings.stats.weekTip"
+msgstr "Correos enviados en los últimos 7 días"
+
+msgid "plugins.generic.mailSettings.stats.monthTip"
+msgstr "Correos enviados en los últimos 30 días"
+
+msgid "plugins.generic.mailSettings.stats.note"
+msgstr "Solo rastrea los correos enviados a través de la configuración de correo personalizada"
