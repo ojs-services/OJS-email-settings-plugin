@@ -12,8 +12,8 @@ Built for **OJS 3.3.x** by [OJS Services](https://ojs-services.com)
 - **Service presets** — Quick setup for Gmail, Yandex, Office 365 and more
 - **Test email** — Verify your settings work before going live
 - **Mail statistics** — Track emails sent today, last 7 days and last 30 days
-- **Sidebar integration** — Quick access link in the OJS backend navigation
-- **Role-based access** — Only Site Admins and Journal Managers can access settings (Journal Editors are restricted)
+- **Native backend integration** — The settings page uses the standard OJS backend layout, plus a quick-access link in the navigation sidebar
+- **Role-based access** — Site Admins and Journal Managers by default; configurable per journal (select which manager-level groups may access the settings)
 - **SMTP From address handling** — Automatic From/Reply-To rewrite for provider compatibility (Gmail, Yandex, etc.)
 - **Email deliverability info** — SPF, DKIM, DMARC recommendations
 - **Secure** — CSRF protection, encrypted password storage, input validation
@@ -23,7 +23,7 @@ Built for **OJS 3.3.x** by [OJS Services](https://ojs-services.com)
 ## Requirements
 
 - OJS 3.3.x
-- PHP 7.3+ (PHP 8.x compatible)
+- PHP 7.4+ (PHP 8.1 compatible)
 
 ## Installation
 
@@ -32,23 +32,6 @@ Built for **OJS 3.3.x** by [OJS Services](https://ojs-services.com)
 3. Upload the `.tar.gz` file
 4. Enable the plugin from the Generic Plugins list
 5. Click **Settings** on the plugin, or use the **Email Settings** link in the sidebar
-
-## Screenshots
-
-### Settings Page — Status & Configuration
-![Settings Page](screenshots/settings-page.png)
-
-### SMTP Configuration & Service Presets
-![SMTP Configuration](screenshots/smtp-config.png)
-
-### Gmail Preset with App Password Notice
-![Gmail Preset](screenshots/preset-gmail.png)
-
-### Yandex Mail Preset
-![Yandex Preset](screenshots/preset-yandex.png)
-
-### Test Email & Deliverability Recommendations
-![Test Email](screenshots/test-email.png)
 
 ## Configuration
 
@@ -77,7 +60,28 @@ The plugin hooks into the OJS mail sending process and takes full control when c
 
 **From address handling:** Many SMTP providers (Gmail, Yandex) reject emails when the From address doesn't match the authenticated account. The plugin automatically rewrites the From address to match your SMTP credentials and preserves the original sender as Reply-To, so replies still go to the right person.
 
+## Known Limitations
+
+- **Scheduled tasks / CLI (multi-journal only):** Emails triggered without an HTTP request context (e.g. review reminders sent by `runScheduledTasks.php` or the Acron plugin) carry no journal context. On a **single-journal** installation the plugin automatically falls back to that journal's custom settings, so everything works. On a **multi-journal** installation the plugin cannot know which journal a CLI-triggered email belongs to, so those emails are sent with the `config.inc.php` defaults — keep a working mail configuration there if you rely on scheduled task emails.
+- **Database password change:** The stored SMTP password is encrypted with a key derived from the OJS database password. If you change the database password, re-enter the SMTP password in the plugin settings (the plugin will log a clear message and fall back to `config.inc.php` until you do).
+
 ## Changelog
+
+### v1.4.1.0
+- Sidebar link now appears on every backend page, including other plugins' management pages (backend detection switched from a fragile page/template whitelist to OJS' own `setupBackendPage()` menu state)
+- Active sidebar link is now readable: inline color override removed so the theme's own `.app__navItem--isCurrent` rule (white on dark) applies
+
+### v1.4.0.0
+- Settings page now uses the native OJS backend layout (real navigation sidebar, header and user menu)
+- Configurable access: choose which manager-level user groups may manage mail settings (with self-lockout protection)
+- Single-journal installations: custom SMTP settings now also apply to emails sent from scheduled tasks / CLI
+- More robust password encryption format (v2, backward compatible; failures are now logged instead of silently sending garbage credentials)
+- Atomic per-day mail counters — concurrent sends no longer lose statistics (old data migrated automatically)
+- Full localization of the settings UI (no hardcoded English strings in JS/templates; localized button labels are preserved)
+- PHP 8.1 compatibility fixes (no deprecation warnings)
+- Accessibility: keyboard-operable preset cards, ARIA live regions, focus styles
+- Performance: per-request caching of access checks; sidebar script injected once per request
+- Test email rate limit no longer consumed by rejected (invalid) addresses
 
 ### v1.3.0.0
 - Mail statistics (today / 7 days / 30 days) in status banner

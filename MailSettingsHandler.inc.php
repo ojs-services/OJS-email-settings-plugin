@@ -87,6 +87,25 @@ class MailSettingsHandler extends Handler {
 		$session = $request->getSession();
 		$csrfToken = $session ? $session->getCSRFToken() : '';
 
+		// Configuration handed to the page JS as a JSON data island.
+		// JSON_HEX_TAG makes the payload safe inside a <script> element.
+		$jsConfig = array(
+			'saveUrl' => $dispatcher->url($request, ROUTE_PAGE, null, 'mailSettings', 'save'),
+			'testMailUrl' => $dispatcher->url($request, ROUTE_PAGE, null, 'mailSettings', 'testMail'),
+			'csrfToken' => $csrfToken,
+			'i18n' => array(
+				'statusCustom' => __('plugins.generic.mailSettings.status.custom'),
+				'statusDefault' => __('plugins.generic.mailSettings.status.default'),
+				'enterEmail' => __('plugins.generic.mailSettings.test.invalidEmail'),
+				'sending' => __('plugins.generic.mailSettings.test.sending'),
+				'parseError' => __('plugins.generic.mailSettings.error.parseError'),
+				'showPassword' => __('plugins.generic.mailSettings.smtp.showPassword'),
+				'hidePassword' => __('plugins.generic.mailSettings.smtp.hidePassword'),
+				'noteGmail' => __('plugins.generic.mailSettings.preset.gmail.note'),
+				'noteOffice365' => __('plugins.generic.mailSettings.preset.office365.note'),
+			),
+		);
+
 		// Assign template variables
 		$templateMgr->assign(array(
 			'pageTitle' => __('plugins.generic.mailSettings.displayName'),
@@ -94,13 +113,27 @@ class MailSettingsHandler extends Handler {
 			'presets' => MailSettingsPlugin::getPresets(),
 			'pluginJsUrl' => $request->getBaseUrl() . '/' . $plugin->getPluginPath() . '/js/mailSettings.js',
 			'pluginCssUrl' => $request->getBaseUrl() . '/' . $plugin->getPluginPath() . '/css/mailSettings.css',
-			'saveUrl' => $dispatcher->url($request, ROUTE_PAGE, null, 'mailSettings', 'save'),
-			'testMailUrl' => $dispatcher->url($request, ROUTE_PAGE, null, 'mailSettings', 'testMail'),
-			'csrfToken' => $csrfToken,
+			'mailSettingsConfigJson' => json_encode($jsConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE),
 		));
 
 		// Load current settings
 		$this->_assignCurrentSettings($templateMgr, $plugin, $contextId);
+
+		// Access group configuration (manager-role groups of this context)
+		$configuredGroups = $plugin->getSetting($contextId, 'accessUserGroups');
+		$configuredGroups = is_array($configuredGroups) ? array_map('intval', $configuredGroups) : array();
+		$defaultManagerGroupId = (int)$plugin->detectJournalManagerGroupId($contextId);
+		$accessGroups = array();
+		foreach ($plugin->getManagerGroups($contextId) as $groupId => $groupName) {
+			$accessGroups[] = array(
+				'id' => $groupId,
+				'name' => $groupName,
+				'checked' => $configuredGroups
+					? in_array($groupId, $configuredGroups, true)
+					: ($groupId === $defaultManagerGroupId),
+			);
+		}
+		$templateMgr->assign('accessGroups', $accessGroups);
 
 		// Load mail statistics
 		$mailStats = $plugin->getMailStats($contextId);
@@ -136,15 +169,53 @@ class MailSettingsHandler extends Handler {
 			return $this->_jsonResponse(false, __('plugins.generic.mailSettings.error.noAccess'));
 		}
 
+		// Access groups: validate against the context's manager-role groups.
+		// An empty selection means "use the default Journal Manager rule".
+		$selectedGroups = $request->getUserVar('accessUserGroups');
+		if (!is_array($selectedGroups)) {
+			$selectedGroups = array();
+		}
+		$managerGroups = $plugin->getManagerGroups($contextId);
+		$accessUserGroups = array();
+		foreach ($selectedGroups as $groupId) {
+			$groupId = (int)$groupId;
+			if (isset($managerGroups[$groupId]) && !in_array($groupId, $accessUserGroups, true)) {
+				$accessUserGroups[] = $groupId;
+			}
+		}
+
+		// Lockout guard: a non-admin cannot save a selection that would
+		// remove their own access to this page.
+		if (!empty($accessUserGroups)) {
+			$roleDao = DAORegistry::getDAO('RoleDAO');
+			if (!$roleDao->userHasRole(CONTEXT_SITE, $user->getId(), ROLE_ID_SITE_ADMIN)) {
+				$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+				$stillHasAccess = false;
+				foreach ($accessUserGroups as $groupId) {
+					if ($userGroupDao->userInGroup($user->getId(), $groupId)) {
+						$stillHasAccess = true;
+						break;
+					}
+				}
+				if (!$stillHasAccess) {
+					return $this->_jsonResponse(false, __('plugins.generic.mailSettings.error.accessLockout'));
+				}
+			}
+		}
+
 		// Read configSource first
 		$configSource = $request->getUserVar('configSource');
 		if (!in_array($configSource, array('default', 'custom'), true)) {
 			$configSource = 'default';
 		}
 
-		// When switching to "default", only save the configSource toggle.
+		// When switching to "default", only save the configSource toggle
+		// (plus the access group selection, which applies to both modes).
 		if ($configSource === 'default') {
-			$plugin->saveSettings($contextId, array('configSource' => 'default'));
+			$plugin->saveSettings($contextId, array(
+				'configSource' => 'default',
+				'accessUserGroups' => $accessUserGroups,
+			));
 			return $this->_jsonResponse(true, __('plugins.generic.mailSettings.settingsSaved'));
 		}
 
@@ -192,6 +263,7 @@ class MailSettingsHandler extends Handler {
 			'dmarcCompliant' => (bool)$request->getUserVar('dmarcCompliant'),
 			'dmarcDisplayName' => $dmarcDisplayName,
 			'suppressCertCheck' => (bool)$request->getUserVar('suppressCertCheck'),
+			'accessUserGroups' => $accessUserGroups,
 		);
 
 		// Handle password
@@ -231,7 +303,18 @@ class MailSettingsHandler extends Handler {
 			return $this->_jsonResponse(false, __('plugins.generic.mailSettings.error.noAccess'));
 		}
 
-		// Rate limiting: prevent test email spam
+		$testEmail = trim($request->getUserVar('testEmail') ?: '');
+		if (!$testEmail || !filter_var($testEmail, FILTER_VALIDATE_EMAIL)) {
+			return $this->_jsonResponse(false, __('plugins.generic.mailSettings.test.invalidEmail'));
+		}
+
+		// Length check
+		if (strlen($testEmail) > self::MAX_USERNAME_LENGTH) {
+			return $this->_jsonResponse(false, __('plugins.generic.mailSettings.test.invalidEmail'));
+		}
+
+		// Rate limiting: prevent test email spam. Runs after validation so a
+		// rejected (e.g. mistyped) address does not consume the cooldown.
 		$session = $request->getSession();
 		if ($session) {
 			$lastTestTime = $session->getSessionVar('mailSettings_lastTest');
@@ -243,16 +326,6 @@ class MailSettingsHandler extends Handler {
 				);
 			}
 			$session->setSessionVar('mailSettings_lastTest', $now);
-		}
-
-		$testEmail = trim($request->getUserVar('testEmail') ?: '');
-		if (!$testEmail || !filter_var($testEmail, FILTER_VALIDATE_EMAIL)) {
-			return $this->_jsonResponse(false, __('plugins.generic.mailSettings.test.invalidEmail'));
-		}
-
-		// Length check
-		if (strlen($testEmail) > self::MAX_USERNAME_LENGTH) {
-			return $this->_jsonResponse(false, __('plugins.generic.mailSettings.test.invalidEmail'));
 		}
 
 		$result = $plugin->sendTestEmail($testEmail, $contextId);
@@ -313,8 +386,12 @@ class MailSettingsHandler extends Handler {
 	private function _sanitizeErrorMessage($message) {
 		if (empty($message)) return '';
 
-		// Keep the message useful but strip potential file paths
-		$message = preg_replace('/\/[^\s:]+/', '[path]', $message);
+		// Strip Unix paths, but keep URLs intact (the lookbehind refuses a
+		// slash preceded by ":" or another "/", i.e. the "://" of a URL)
+		$message = preg_replace('#(?<![:/\w])/[^\s:*?"<>|]+#', '[path]', $message);
+
+		// Strip Windows paths (C:\... or C:/...)
+		$message = preg_replace('#\b[A-Za-z]:[\\\\/][^\s*?"<>|]+#', '[path]', $message);
 
 		// Limit length
 		return substr($message, 0, 500);

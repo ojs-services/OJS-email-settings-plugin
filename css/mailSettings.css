@@ -21,6 +21,39 @@
 	margin-bottom: 6px;
 }
 
+/* Utility classes (replacements for former inline styles — inline <style>
+   is stripped by the OJS backend Vue mount, so everything lives here) */
+
+.ms-select-narrow {
+	max-width: 280px;
+}
+
+.ms-input-medium {
+	max-width: 400px;
+}
+
+.ms-form-grid-gap {
+	margin-top: 18px;
+}
+
+.ms-form-group-spaced {
+	margin-bottom: 18px;
+}
+
+.ms-form-group-mid {
+	margin: 14px 0;
+}
+
+.ms-card-desc {
+	color: #888;
+	font-size: 13px;
+	margin: 0 0 14px;
+}
+
+.ms-hidden {
+	display: none !important;
+}
+
 /* =========================================================================
    STATUS BANNER
    ========================================================================= */
@@ -259,6 +292,16 @@
 	border-color: #1976D2;
 	background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
 	box-shadow: 0 2px 8px rgba(25,118,210,0.15);
+}
+
+/* Keyboard focus for preset cards (div[role=button][tabindex=0]) */
+.ms-preset-card:focus {
+	outline: none;
+}
+
+.ms-preset-card:focus-visible {
+	outline: 3px solid #1976D2;
+	outline-offset: 2px;
 }
 
 .ms-preset-card .ms-preset-icon {

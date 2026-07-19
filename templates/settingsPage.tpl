@@ -4,13 +4,21 @@
  * Copyright (c) 2026 OJS Services (ojs-services.com)
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * Email Settings plugin - standalone settings page
+ * Email Settings page. Extends OJS' standard backend layout so the real
+ * navigation sidebar, header and user menu are rendered by OJS itself.
+ *
+ * NOTE: inline <style> tags inside the page block are stripped when the
+ * backend Vue app mounts — all styling must live in css/mailSettings.css.
+ * Inline <script> tags execute during HTML parse (before the Vue mount),
+ * so the JSON config island below must be read synchronously by
+ * js/mailSettings.js, while DOM listeners are attached on DOMContentLoaded
+ * (after the mount).
  *}
-
 {extends file="layouts/backend.tpl"}
 
 {block name="page"}
-<link rel="stylesheet" href="{$pluginCssUrl}" />
+
+<link rel="stylesheet" href="{$pluginCssUrl|escape}">
 
 <h1 class="app__pageHeading">
 	{translate key="plugins.generic.mailSettings.displayName"}
@@ -19,11 +27,11 @@
 <div id="mailSettingsPage">
 
 	{* ==================== NOTIFICATION AREA ==================== *}
-	<div id="mailSettingsNotification" class="ms-notification"></div>
+	<div id="mailSettingsNotification" class="ms-notification" role="status" aria-live="polite"></div>
 
 	{* ==================== STATUS BANNER ==================== *}
 	<div id="mailSettingsStatus" class="ms-status-banner {if $configSource == 'custom'}ms-status-custom{else}ms-status-default{/if}">
-		<span class="ms-status-icon" id="statusIcon">{if $configSource == 'custom'}&#9889;{else}&#128736;{/if}</span>
+		<span class="ms-status-icon" id="statusIcon" aria-hidden="true">{if $configSource == 'custom'}&#9889;{else}&#128736;{/if}</span>
 		<span>
 			<strong>{translate key="plugins.generic.mailSettings.status.label"}:</strong>
 			<span id="statusText">
@@ -40,12 +48,12 @@
 				<span class="ms-stat-num">{$mailStats.today|escape}</span>
 				<span class="ms-stat-label">{translate key="plugins.generic.mailSettings.stats.today"}</span>
 			</span>
-			<span class="ms-stat-divider">|</span>
+			<span class="ms-stat-divider" aria-hidden="true">|</span>
 			<span class="ms-stat-item" title="{translate key="plugins.generic.mailSettings.stats.weekTip"}">
 				<span class="ms-stat-num">{$mailStats.week|escape}</span>
 				<span class="ms-stat-label">{translate key="plugins.generic.mailSettings.stats.week"}</span>
 			</span>
-			<span class="ms-stat-divider">|</span>
+			<span class="ms-stat-divider" aria-hidden="true">|</span>
 			<span class="ms-stat-item" title="{translate key="plugins.generic.mailSettings.stats.monthTip"}">
 				<span class="ms-stat-num">{$mailStats.month|escape}</span>
 				<span class="ms-stat-label">{translate key="plugins.generic.mailSettings.stats.month"}</span>
@@ -55,13 +63,13 @@
 		{/if}
 	</div>
 
-	<form id="mailSettingsForm" method="post" onsubmit="return false;">
+	<form id="mailSettingsForm" method="post" action="#">
 		{csrf}
 
 		{* ==================== CONFIG SOURCE SELECTION ==================== *}
 		<div class="ms-card">
 			<div class="ms-card-header">
-				<span class="ms-card-header-icon">&#9881;</span>
+				<span class="ms-card-header-icon" aria-hidden="true">&#9881;</span>
 				{translate key="plugins.generic.mailSettings.configSource.title"}
 			</div>
 
@@ -92,11 +100,12 @@
 			{* Mail Method *}
 			<div class="ms-card">
 				<div class="ms-card-header">
-					<span class="ms-card-header-icon">&#128232;</span>
+					<span class="ms-card-header-icon" aria-hidden="true">&#128232;</span>
 					{translate key="plugins.generic.mailSettings.mailMethod.title"}
 				</div>
 				<div class="ms-form-group">
-					<select name="mailMethod" id="mailMethod" class="ms-select" style="max-width: 280px;">
+					<label class="ms-label" for="mailMethod">{translate key="plugins.generic.mailSettings.mailMethod.title"}</label>
+					<select name="mailMethod" id="mailMethod" class="ms-select ms-select-narrow">
 						<option value="smtp" {if $mailMethod == 'smtp'}selected{/if}>{translate key="plugins.generic.mailSettings.mailMethod.smtp"}</option>
 						<option value="phpmail" {if $mailMethod == 'phpmail'}selected{/if}>{translate key="plugins.generic.mailSettings.mailMethod.phpmail"}</option>
 						<option value="sendmail" {if $mailMethod == 'sendmail'}selected{/if}>{translate key="plugins.generic.mailSettings.mailMethod.sendmail"}</option>
@@ -105,37 +114,38 @@
 			</div>
 
 			{* SMTP Settings Panel - Single Card *}
-			<div id="smtpSettingsPanel" style="{if $mailMethod != 'smtp'}display:none;{/if}">
+			<div id="smtpSettingsPanel" {if $mailMethod != 'smtp'}class="ms-hidden"{/if}>
 				<div class="ms-card">
 
 					{* Service Presets *}
 					<div class="ms-card-header">
-						<span class="ms-card-header-icon">&#9889;</span>
+						<span class="ms-card-header-icon" aria-hidden="true">&#9889;</span>
 						{translate key="plugins.generic.mailSettings.presets.title"}
 					</div>
-					<p style="color:#888; font-size:13px; margin:0 0 14px;">{translate key="plugins.generic.mailSettings.presets.description"}</p>
-					<div class="ms-preset-grid">
+					<p class="ms-card-desc">{translate key="plugins.generic.mailSettings.presets.description"}</p>
+					<div class="ms-preset-grid" role="group" aria-label="{translate key="plugins.generic.mailSettings.presets.title"}">
 						{foreach from=$presets key=presetKey item=preset}
-						<div class="ms-preset-card mailPresetCard" data-preset="{$presetKey}"
-							data-server="{$preset.server}" data-port="{$preset.port}" data-encryption="{$preset.encryption}">
-							<span class="ms-preset-icon">{if $presetKey == 'gmail'}&#128231;{elseif $presetKey == 'office365'}&#128188;{elseif $presetKey == 'yandex'}&#128421;{elseif $presetKey == 'zoho'}&#128200;{else}&#9998;{/if}</span>
-							<div class="ms-preset-name">{$preset.name}</div>
+						<div class="ms-preset-card mailPresetCard" data-preset="{$presetKey|escape}"
+							data-server="{$preset.server|escape}" data-port="{$preset.port|escape}" data-encryption="{$preset.encryption|escape}"
+							tabindex="0" role="button" aria-pressed="false">
+							<span class="ms-preset-icon" aria-hidden="true">{if $presetKey == 'gmail'}&#128231;{elseif $presetKey == 'office365'}&#128188;{elseif $presetKey == 'yandex'}&#128421;{elseif $presetKey == 'zoho'}&#128200;{else}&#9998;{/if}</span>
+							<div class="ms-preset-name">{$preset.name|escape}</div>
 							{if $preset.server}
-								<div class="ms-preset-info">{$preset.server}:{$preset.port}</div>
+								<div class="ms-preset-info">{$preset.server|escape}:{$preset.port|escape}</div>
 							{else}
 								<div class="ms-preset-info">{translate key="plugins.generic.mailSettings.presets.manual"}</div>
 							{/if}
 						</div>
 						{/foreach}
 					</div>
-					<div id="presetNote" class="ms-preset-note"></div>
+					<div id="presetNote" class="ms-preset-note" role="note"></div>
 
 					{* Divider *}
 					<div class="ms-card-divider"></div>
 
 					{* SMTP Server & Port *}
 					<div class="ms-card-sub-header">
-						<span class="ms-card-header-icon">&#128421;</span>
+						<span class="ms-card-header-icon" aria-hidden="true">&#128421;</span>
 						{translate key="plugins.generic.mailSettings.smtp.title"}
 					</div>
 
@@ -155,7 +165,7 @@
 						</div>
 					</div>
 
-					<div class="ms-form-grid ms-form-grid-2" style="margin-top: 18px;">
+					<div class="ms-form-grid ms-form-grid-2 ms-form-grid-gap">
 						<div class="ms-form-group">
 							<label class="ms-label" for="smtpEncryption">{translate key="plugins.generic.mailSettings.smtp.encryption"}</label>
 							<select name="smtpEncryption" id="smtpEncryption" class="ms-select">
@@ -180,7 +190,7 @@
 
 					{* Credentials *}
 					<div class="ms-card-sub-header">
-						<span class="ms-card-header-icon">&#128272;</span>
+						<span class="ms-card-header-icon" aria-hidden="true">&#128272;</span>
 						{translate key="plugins.generic.mailSettings.credentials.title"}
 					</div>
 
@@ -192,7 +202,7 @@
 						<div class="ms-form-group">
 							<label class="ms-label" for="smtpPassword">{translate key="plugins.generic.mailSettings.smtp.password"}</label>
 							<div class="ms-password-wrap">
-								<input type="password" id="smtpPassword" name="smtpPassword" value="" class="ms-input ms-input-mono"
+								<input type="password" id="smtpPassword" name="smtpPassword" value="" class="ms-input ms-input-mono" autocomplete="new-password"
 									placeholder="{if $hasPassword}{translate key="plugins.generic.mailSettings.smtp.passwordUnchanged"}{else}{translate key="plugins.generic.mailSettings.smtp.passwordEnter"}{/if}" />
 								<button type="button" id="togglePassword" class="ms-password-toggle">
 									{translate key="plugins.generic.mailSettings.smtp.showPassword"}
@@ -211,14 +221,14 @@
 			<div class="ms-card">
 				<details>
 					<summary class="ms-advanced-toggle">
-						<span class="ms-chevron">&#9654;</span>
+						<span class="ms-chevron" aria-hidden="true">&#9654;</span>
 						{translate key="plugins.generic.mailSettings.advanced.title"}
 					</summary>
 					<div class="ms-advanced-body">
 
-						<div class="ms-form-group" style="margin-bottom: 18px;">
+						<div class="ms-form-group ms-form-group-spaced">
 							<label class="ms-label" for="envelopeSender">{translate key="plugins.generic.mailSettings.advanced.envelopeSender"}</label>
-							<input type="text" id="envelopeSender" name="envelopeSender" value="{$envelopeSender|escape}" class="ms-input ms-input-mono" style="max-width: 400px;" placeholder="noreply@example.com" />
+							<input type="text" id="envelopeSender" name="envelopeSender" value="{$envelopeSender|escape}" class="ms-input ms-input-mono ms-input-medium" placeholder="noreply@example.com" />
 							<div class="ms-hint">{translate key="plugins.generic.mailSettings.advanced.envelopeSenderDesc"}</div>
 						</div>
 
@@ -232,9 +242,9 @@
 							<span>{translate key="plugins.generic.mailSettings.advanced.dmarcCompliant"}</span>
 						</label>
 
-						<div class="ms-form-group" style="margin: 14px 0;">
+						<div class="ms-form-group ms-form-group-mid">
 							<label class="ms-label" for="dmarcDisplayName">{translate key="plugins.generic.mailSettings.advanced.dmarcDisplayName"}</label>
-							<input type="text" id="dmarcDisplayName" name="dmarcDisplayName" value="{$dmarcDisplayName|escape}" class="ms-input" style="max-width: 400px;" />
+							<input type="text" id="dmarcDisplayName" name="dmarcDisplayName" value="{$dmarcDisplayName|escape}" class="ms-input ms-input-medium" />
 							<div class="ms-hint">{translate key="plugins.generic.mailSettings.advanced.dmarcDisplayNameDesc"}</div>
 						</div>
 
@@ -249,6 +259,23 @@
 
 		</div> {* END customSettingsPanel *}
 
+		{* ==================== ACCESS GROUPS (applies to both modes) ==================== *}
+		{if $accessGroups|@count > 1}
+		<div class="ms-card">
+			<div class="ms-card-header">
+				<span class="ms-card-header-icon" aria-hidden="true">&#128101;</span>
+				{translate key="plugins.generic.mailSettings.advanced.accessGroups"}
+			</div>
+			<p class="ms-card-desc">{translate key="plugins.generic.mailSettings.advanced.accessGroupsDesc"}</p>
+			{foreach from=$accessGroups item=group}
+				<label class="ms-checkbox-row">
+					<input type="checkbox" name="accessUserGroups[]" value="{$group.id|escape}" {if $group.checked}checked="checked"{/if} />
+					<span>{$group.name|escape}</span>
+				</label>
+			{/foreach}
+		</div>
+		{/if}
+
 		{* ==================== SAVE BUTTON ==================== *}
 		<div class="ms-save-area">
 			<button type="button" id="saveSettingsBtn" class="ms-btn-save">
@@ -262,7 +289,7 @@
 	{* ==================== TEST EMAIL SECTION ==================== *}
 	<div class="ms-test-section">
 		<div class="ms-test-header">
-			<span>&#128233;</span>
+			<span aria-hidden="true">&#128233;</span>
 			{translate key="plugins.generic.mailSettings.test.title"}
 		</div>
 		<p class="ms-test-desc">{translate key="plugins.generic.mailSettings.test.description"}</p>
@@ -276,13 +303,13 @@
 			</button>
 		</div>
 
-		<div id="testResults" class="ms-test-results"></div>
+		<div id="testResults" class="ms-test-results" role="status" aria-live="polite"></div>
 	</div>
 
 	{* ==================== EMAIL DELIVERABILITY INFO ==================== *}
 	<div class="ms-card ms-info-card">
 		<div class="ms-card-header">
-			<span class="ms-card-header-icon">&#128161;</span>
+			<span class="ms-card-header-icon" aria-hidden="true">&#128161;</span>
 			{translate key="plugins.generic.mailSettings.deliverability.title"}
 		</div>
 		<div class="ms-info-content">
@@ -307,14 +334,9 @@
 
 </div>
 
-<script src="{$pluginJsUrl}"></script>
+{* Config data island — parsed synchronously by mailSettings.js before the
+   backend Vue app re-renders the page block. JSON_HEX_TAG applied server-side. *}
+<script type="application/json" id="mailSettingsConfigJson">{$mailSettingsConfigJson nofilter}</script>
+<script src="{$pluginJsUrl|escape}"></script>
 
-{* Pass URLs and CSRF token to JavaScript *}
-<script>
-	var mailSettingsConfig = {ldelim}
-		saveUrl: {$saveUrl|json_encode},
-		testMailUrl: {$testMailUrl|json_encode},
-		csrfToken: {$csrfToken|json_encode}
-	{rdelim};
-</script>
 {/block}

@@ -110,6 +110,9 @@ msgstr "Şifre kayıtlı"
 msgid "plugins.generic.mailSettings.smtp.showPassword"
 msgstr "👁 Göster"
 
+msgid "plugins.generic.mailSettings.smtp.hidePassword"
+msgstr "🔒 Gizle"
+
 # Advanced Settings
 msgid "plugins.generic.mailSettings.advanced.title"
 msgstr "Gelişmiş Ayarlar"
@@ -138,6 +141,12 @@ msgstr "SMTP SSL sertifika doğrulamasını atla"
 msgid "plugins.generic.mailSettings.advanced.notRecommended"
 msgstr "Önerilmez"
 
+msgid "plugins.generic.mailSettings.advanced.accessGroups"
+msgstr "Erişim İzni"
+
+msgid "plugins.generic.mailSettings.advanced.accessGroupsDesc"
+msgstr "Bu mail ayarlarını hangi yönetici düzeyindeki kullanıcı gruplarının yönetebileceğini seçin. Site Yöneticileri her zaman erişebilir. Hiçbir grup seçilmezse varsayılan kural uygulanır (yalnızca Dergi Yöneticisi)."
+
 # Test Mail
 msgid "plugins.generic.mailSettings.test.title"
 msgstr "Test E-postası"
@@ -153,6 +162,9 @@ msgstr "Test E-postası Gönder"
 
 msgid "plugins.generic.mailSettings.test.invalidEmail"
 msgstr "Lütfen geçerli bir e-posta adresi girin."
+
+msgid "plugins.generic.mailSettings.test.sending"
+msgstr "Test e-postası gönderiliyor..."
 
 msgid "plugins.generic.mailSettings.test.usingDefault"
 msgstr "OJS varsayılan yapılandırması kullanılıyor (config.inc.php)..."
@@ -236,6 +248,12 @@ msgstr "Güvenlik anahtarı süresi doldu. Lütfen sayfayı yenileyip tekrar den
 
 msgid "plugins.generic.mailSettings.error.invalidEnvelopeSender"
 msgstr "Zarf gönderici adresi geçerli bir e-posta adresi olmalıdır."
+
+msgid "plugins.generic.mailSettings.error.parseError"
+msgstr "Hata: Sunucu yanıtı çözümlenemedi."
+
+msgid "plugins.generic.mailSettings.error.accessLockout"
+msgstr "Kendi erişiminizi kaldıramazsınız: seçilen gruplardan en az biri üyesi olduğunuz bir grup olmalıdır."
 
 msgid "plugins.generic.mailSettings.test.rateLimited"
 msgstr "Lütfen yeni bir test e-postası göndermeden önce {$seconds} saniye bekleyin."

@@ -13,9 +13,14 @@
  *        without editing config.inc.php
  */
 
+use Illuminate\Database\Capsule\Manager as Capsule;
+
 import('lib.pkp.classes.plugins.GenericPlugin');
 
 class MailSettingsPlugin extends GenericPlugin {
+
+	/** @var array Per-request cache for userHasAccess() results, keyed by "userId:contextId" */
+	private $_accessCache = array();
 
 	/**
 	 * @copydoc Plugin::register()
@@ -77,8 +82,8 @@ class MailSettingsPlugin extends GenericPlugin {
 	// =========================================================================
 
 	/**
-	 * Add a link to the OJS backend sidebar for admin/manager users
-	 * Uses JavaScript DOM injection (same approach as Bulk Plugin Manager)
+	 * Add a link to the OJS backend sidebar for admin/manager users.
+	 * Uses unified sidebar pattern shared across all OJS Services plugins.
 	 *
 	 * @param $hookName string
 	 * @param $args array
@@ -86,42 +91,23 @@ class MailSettingsPlugin extends GenericPlugin {
 	 */
 	public function addSidebarLink($hookName, $args) {
 		$templateMgr = $args[0];
-		$template = $args[1];
 
-		// Check if this is a backend page
-		$backendTemplates = array(
-			'management/', 'admin/', 'dashboard/', 'submissions',
-			'authorDashboard', 'workflow/', 'stats/', 'statistics/',
-			'tools/', 'settings/', 'users/', 'manageIssues/',
-			'editorialActivity', 'reports/', 'article'
-		);
-
-		$isBackend = false;
-		foreach ($backendTemplates as $tpl) {
-			if (strpos($template, $tpl) !== false) {
-				$isBackend = true;
-				break;
-			}
+		// Backend detection: setupBackendPage() populates the 'menu' Vue
+		// state on every backend handler (core pages AND all plugin
+		// management pages) and never on the frontend — so no manual
+		// whitelist of template paths / page names is needed, and the link
+		// no longer disappears on other plugins' management pages.
+		$menu = $templateMgr->getState('menu');
+		if (!is_array($menu) || empty($menu)) {
+			return false;
 		}
 
-		// Alternative: check by requested page
-		if (!$isBackend) {
-			$request = Application::get()->getRequest();
-			$router = $request->getRouter();
-			if ($router && method_exists($router, 'getRequestedPage')) {
-				$page = $router->getRequestedPage($request);
-				$backendPages = array(
-					'management', 'manageIssues', 'stats', 'submissions',
-					'workflow', 'settings', 'tools', 'admin', 'user',
-					'mailSettings'
-				);
-				if (in_array($page, $backendPages)) {
-					$isBackend = true;
-				}
-			}
-		}
-
-		if (!$isBackend) {
+		// The display hook fires for every template (components, AJAX
+		// fragments) — inject the script only once per request. Checked
+		// after backend detection so a non-backend display call can never
+		// consume the guard.
+		static $injected = false;
+		if ($injected) {
 			return false;
 		}
 
@@ -145,35 +131,37 @@ class MailSettingsPlugin extends GenericPlugin {
 
 		$templateMgr->addJavaScript(
 			'mailSettingsSidebar',
-			'
-			document.addEventListener("DOMContentLoaded", function() {
-				var nav = document.querySelector(".pkp_nav_list, .app__nav, nav[role=navigation] ul, .pkpNav__list");
-				if (!nav) {
-					nav = document.querySelector("#navigationPrimary ul, .pkp_navigation_primary ul");
-				}
-
-				if (nav) {
-					if (document.getElementById("mailSettingsSidebarLink")) return;
-
-					var li = document.createElement("li");
-					li.id = "mailSettingsSidebarLink";
-					li.className = nav.children[0] ? nav.children[0].className : "";
-
-					var a = document.createElement("a");
-					a.href = "' . $url . '";
-					a.innerHTML = "&#128231; ' . addslashes($menuLabel) . '";
-					a.className = nav.querySelector("a") ? nav.querySelector("a").className : "";
-
-					li.appendChild(a);
-					nav.appendChild(li);
-				}
-			});
-			',
+			'(function(){' .
+			'var S=window.OJS_SIDEBAR_ITEMS=window.OJS_SIDEBAR_ITEMS||[];' .
+			'S.push({id:"mailSettingsSidebarLink",icon:"\\u2709\\uFE0F",text:' . json_encode($menuLabel) . ',url:' . json_encode($url) . ',pg:"mailSettings",p:50});' .
+			'if(!window._ojsSbRender){window._ojsSbRender=function(){' .
+			'var items=window.OJS_SIDEBAR_ITEMS;if(!items||!items.length)return;' .
+			'var nav=document.querySelector(".pkp_nav_list,.app__nav,nav[role=navigation] ul,.pkpNav__list");' .
+			'if(!nav)nav=document.querySelector("#navigationPrimary ul,.pkp_navigation_primary ul");' .
+			'if(!nav){if(!window._ojsSbR)window._ojsSbR=0;if(window._ojsSbR++<30)setTimeout(window._ojsSbRender,200);return;}' .
+			'window._ojsSbR=0;if(nav.tagName==="NAV"){var ul=nav.querySelector("ul");if(ul)nav=ul;}' .
+			'var old=nav.querySelectorAll("[data-ojs-sidebar]");for(var i=0;i<old.length;i++)old[i].parentNode.removeChild(old[i]);' .
+			'items.sort(function(a,b){return(a.p||99)-(b.p||99);});' .
+			'var sep=document.createElement("li");sep.setAttribute("data-ojs-sidebar","1");' .
+			'sep.style.cssText="border-top:1px solid rgba(255,255,255,0.15);margin:12px 0 6px;padding:0;list-style:none;";nav.appendChild(sep);' .
+			'var u=window.location.href;items.forEach(function(it){' .
+			'var li=document.createElement("li");li.id=it.id;li.setAttribute("data-ojs-sidebar","1");' .
+			'var a=document.createElement("a");a.className="app__navItem";a.href=it.url;a.innerHTML=it.icon+" "+it.text;' .
+			// No inline color: inline styles would override the theme rules
+			// (.app__navItem is dark text; --isCurrent flips to white on dark).
+			'a.style.cssText="display:flex;align-items:center;gap:8px;padding:8px 16px;text-decoration:none;font-size:0.9em;font-weight:600;";' .
+			'if(u.indexOf(it.pg)>-1){a.classList.add("app__navItem--isCurrent");}' .
+			'li.appendChild(a);nav.appendChild(li);});};}' .
+			'clearTimeout(window._ojsSbT);window._ojsSbT=setTimeout(window._ojsSbRender,100);' .
+			'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){clearTimeout(window._ojsSbT);window._ojsSbT=setTimeout(window._ojsSbRender,100);});}' .
+			'})();',
 			array(
 				'inline' => true,
 				'contexts' => array('backend')
 			)
 		);
+
+		$injected = true;
 
 		return false;
 	}
@@ -237,6 +225,17 @@ class MailSettingsPlugin extends GenericPlugin {
 		$context = $request->getContext();
 		$contextId = ($context) ? $context->getId() : CONTEXT_SITE;
 
+		// No request context (CLI/cron scheduled tasks, site-level pages):
+		// fall back to the single journal when the installation has exactly
+		// one active journal. On multi-journal installations we cannot know
+		// which journal the email belongs to, so OJS defaults apply.
+		if (!$contextId || $contextId === CONTEXT_SITE) {
+			$contextId = $this->_getSingleContextId();
+			if (!$contextId) {
+				return false;
+			}
+		}
+
 		$settings = $this->_getEffectiveSettings($contextId);
 
 		// No custom settings active — let OJS handle normally
@@ -283,7 +282,8 @@ class MailSettingsPlugin extends GenericPlugin {
 	 * @return array|null
 	 */
 	private function _getEffectiveSettings($contextId) {
-		// Only journal-level settings are supported
+		// Only journal-level settings are supported; callers resolve the
+		// context (see overrideMailSettings for the CLI/cron fallback).
 		if (!$contextId || $contextId === CONTEXT_SITE) {
 			return null;
 		}
@@ -294,6 +294,27 @@ class MailSettingsPlugin extends GenericPlugin {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Return the id of the only active journal, or null if the installation
+	 * has zero or more than one active journal.
+	 *
+	 * @return int|null
+	 */
+	private function _getSingleContextId() {
+		try {
+			$contextDao = Application::getContextDAO();
+			$contexts = $contextDao->getAll(true); // enabled contexts only
+			$first = $contexts->next();
+			if (!$first || $contexts->next()) {
+				return null;
+			}
+			return $first->getId();
+		} catch (Exception $e) {
+			error_log('MailSettings Plugin: context lookup failed: ' . $e->getMessage());
+			return null;
+		}
 	}
 
 	// =========================================================================
@@ -413,8 +434,20 @@ class MailSettingsPlugin extends GenericPlugin {
 		}
 
 		if ($smtpFrom) {
-			// Use SMTP-compatible From address
+			// Use SMTP-compatible From address.
+			// Apply the configured DMARC display-name format so the sender name stays
+			// consistent (e.g. "Editorial Office") instead of the acting user's name.
+			// %n = original sender name, %s = site/journal name. Falls back to the
+			// original sender name when Force-DMARC is off or no format is set.
 			$displayName = $originalFromName ?: '';
+			if (!empty($settings['dmarcCompliant']) && !empty($settings['dmarcDisplayName'])) {
+				$siteName = '';
+				if (strpos($settings['dmarcDisplayName'], '%s') !== false && Config::getVar('general', 'installed')) {
+					$site = Application::get()->getRequest()->getSite();
+					if ($site) $siteName = (string)$site->getLocalizedTitle();
+				}
+				$displayName = str_replace(array('%n', '%s'), array($originalFromName, $siteName), $settings['dmarcDisplayName']);
+			}
 			$mailer->setFrom($smtpFrom, $displayName);
 
 			// Set original OJS From as Reply-To (so replies go to the right person)
@@ -495,7 +528,9 @@ class MailSettingsPlugin extends GenericPlugin {
 		$body = $mail->getBody();
 		$contentType = method_exists($mail, 'getContentType') ? $mail->getContentType() : null;
 
-		if ($contentType === 'text/html' || strpos($body, '<') !== false) {
+		// Detect HTML by looking for an actual tag, so plain-text bodies that
+		// merely contain "<" (e.g. "Editor <editor@example.com>") stay plain.
+		if ($contentType === 'text/html' || preg_match('/<\/?[a-z][a-z0-9]*(\s[^>]*)?\/?>/i', (string)$body)) {
 			$mailer->isHTML(true);
 			$mailer->Body = $body;
 			// Generate plain text alternative
@@ -576,7 +611,7 @@ class MailSettingsPlugin extends GenericPlugin {
 			'configSource', 'mailMethod', 'smtpServer', 'smtpPort',
 			'smtpEncryption', 'smtpUsername', 'smtpPassword', 'smtpAuthType',
 			'envelopeSender', 'forceEnvelopeSender', 'dmarcCompliant',
-			'dmarcDisplayName', 'suppressCertCheck',
+			'dmarcDisplayName', 'suppressCertCheck', 'accessUserGroups',
 		);
 
 		foreach ($settingKeys as $key) {
@@ -594,40 +629,75 @@ class MailSettingsPlugin extends GenericPlugin {
 	// MAIL STATISTICS
 	// =========================================================================
 
+	/** @var string Prefix for the per-day counter settings */
+	const MAIL_STATS_PREFIX = 'mailStatsDay_';
+
 	/**
-	 * Increment daily mail counter for a context
+	 * Increment daily mail counter for a context.
+	 *
+	 * Uses an atomic SQL increment on a per-day plugin_settings row instead
+	 * of a read-modify-write JSON blob, so concurrent sends never lose counts.
 	 *
 	 * @param $contextId int
 	 */
 	private function _incrementMailCounter($contextId) {
 		try {
-			$today = date('Y-m-d');
-			$stats = $this->getSetting($contextId, 'mailStats');
-			$stats = $stats ? json_decode($stats, true) : array();
+			$isNewDay = $this->_bumpDayCounter($contextId, self::MAIL_STATS_PREFIX . date('Y-m-d'), 1);
 
-			if (!is_array($stats)) {
-				$stats = array();
+			// Prune counters older than 30 days once per day (on first mail of the day)
+			if ($isNewDay) {
+				Capsule::table('plugin_settings')
+					->where('plugin_name', '=', $this->getName())
+					->where('context_id', '=', (int)$contextId)
+					->where('setting_name', 'like', self::MAIL_STATS_PREFIX . '%')
+					->where('setting_name', '<', self::MAIL_STATS_PREFIX . date('Y-m-d', strtotime('-30 days')))
+					->delete();
 			}
-
-			// Increment today's count
-			if (isset($stats[$today])) {
-				$stats[$today]++;
-			} else {
-				$stats[$today] = 1;
-			}
-
-			// Keep only last 30 days to prevent bloat
-			$cutoff = date('Y-m-d', strtotime('-30 days'));
-			foreach (array_keys($stats) as $date) {
-				if ($date < $cutoff) {
-					unset($stats[$date]);
-				}
-			}
-
-			$this->updateSetting($contextId, 'mailStats', json_encode($stats));
 		} catch (Exception $e) {
 			// Don't let stats tracking break mail sending
 			error_log('MailSettings Plugin stats error: ' . $e->getMessage());
+		}
+	}
+
+	/**
+	 * Atomically add $amount to a per-day counter row, creating it if needed.
+	 *
+	 * Note: these rows are written with raw SQL on purpose; they are only
+	 * ever read back with raw SQL (getMailStats), so the PluginSettingsDAO
+	 * file cache never needs to know about them.
+	 *
+	 * @param $contextId int
+	 * @param $settingName string
+	 * @param $amount int
+	 * @return bool true if a new row was created (first increment of the day)
+	 */
+	private function _bumpDayCounter($contextId, $settingName, $amount) {
+		$where = array(
+			array('plugin_name', '=', $this->getName()),
+			array('context_id', '=', (int)$contextId),
+			array('setting_name', '=', $settingName),
+		);
+
+		$affected = Capsule::table('plugin_settings')->where($where)
+			->update(array('setting_value' => Capsule::raw('setting_value + ' . (int)$amount)));
+		if ($affected) {
+			return false;
+		}
+
+		try {
+			Capsule::table('plugin_settings')->insert(array(
+				'plugin_name' => $this->getName(),
+				'context_id' => (int)$contextId,
+				'setting_name' => $settingName,
+				'setting_value' => (string)(int)$amount,
+				'setting_type' => 'int',
+			));
+			return true;
+		} catch (Exception $e) {
+			// Unique-key race: another process inserted the row first — retry the increment
+			Capsule::table('plugin_settings')->where($where)
+				->update(array('setting_value' => Capsule::raw('setting_value + ' . (int)$amount)));
+			return false;
 		}
 	}
 
@@ -638,25 +708,39 @@ class MailSettingsPlugin extends GenericPlugin {
 	 * @return array with keys: today, week, month
 	 */
 	public function getMailStats($contextId) {
-		$stats = $this->getSetting($contextId, 'mailStats');
-		$stats = $stats ? json_decode($stats, true) : array();
-
-		if (!is_array($stats)) {
-			$stats = array();
-		}
-
 		$today = date('Y-m-d');
 		$weekAgo = date('Y-m-d', strtotime('-7 days'));
+		$monthAgo = date('Y-m-d', strtotime('-30 days'));
 
-		$todayCount = isset($stats[$today]) ? (int)$stats[$today] : 0;
+		$todayCount = 0;
 		$weekCount = 0;
 		$monthCount = 0;
 
-		foreach ($stats as $date => $count) {
-			$monthCount += (int)$count;
-			if ($date >= $weekAgo) {
-				$weekCount += (int)$count;
+		try {
+			$this->_migrateLegacyMailStats($contextId);
+
+			$rows = Capsule::table('plugin_settings')
+				->where('plugin_name', '=', $this->getName())
+				->where('context_id', '=', (int)$contextId)
+				->where('setting_name', 'like', self::MAIL_STATS_PREFIX . '%')
+				->get();
+
+			foreach ($rows as $row) {
+				$date = substr($row->setting_name, strlen(self::MAIL_STATS_PREFIX));
+				$count = (int)$row->setting_value;
+				if ($date < $monthAgo) {
+					continue;
+				}
+				$monthCount += $count;
+				if ($date >= $weekAgo) {
+					$weekCount += $count;
+				}
+				if ($date === $today) {
+					$todayCount = $count;
+				}
 			}
+		} catch (Exception $e) {
+			error_log('MailSettings Plugin stats read error: ' . $e->getMessage());
 		}
 
 		return array(
@@ -664,6 +748,33 @@ class MailSettingsPlugin extends GenericPlugin {
 			'week' => $weekCount,
 			'month' => $monthCount,
 		);
+	}
+
+	/**
+	 * One-time migration of the legacy "mailStats" JSON blob (<= v1.3.x)
+	 * into per-day counter rows.
+	 *
+	 * @param $contextId int
+	 */
+	private function _migrateLegacyMailStats($contextId) {
+		$legacy = $this->getSetting($contextId, 'mailStats');
+		if (!$legacy) {
+			return;
+		}
+
+		$stats = json_decode($legacy, true);
+		if (is_array($stats)) {
+			foreach ($stats as $date => $count) {
+				if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$date) || (int)$count <= 0) {
+					continue;
+				}
+				$this->_bumpDayCounter($contextId, self::MAIL_STATS_PREFIX . $date, (int)$count);
+			}
+		}
+
+		// Delete via the DAO so the plugin settings cache stays consistent
+		$pluginSettingsDao = DAORegistry::getDAO('PluginSettingsDAO');
+		$pluginSettingsDao->deleteSetting($contextId, $this->getName(), 'mailStats');
 	}
 
 	// =========================================================================
@@ -675,6 +786,24 @@ class MailSettingsPlugin extends GenericPlugin {
 			return false;
 		}
 
+		// Cache per request: this runs on every backend page via the
+		// TemplateManager::display hook and involves several DB queries.
+		$cacheKey = $user->getId() . ':' . $contextId;
+		if (array_key_exists($cacheKey, $this->_accessCache)) {
+			return $this->_accessCache[$cacheKey];
+		}
+
+		return $this->_accessCache[$cacheKey] = $this->_computeUserAccess($user, $contextId);
+	}
+
+	/**
+	 * Uncached access computation. See userHasAccess().
+	 *
+	 * @param $user User
+	 * @param $contextId int
+	 * @return bool
+	 */
+	private function _computeUserAccess($user, $contextId) {
 		$roleDao = DAORegistry::getDAO('RoleDAO');
 
 		// Site Administrators can access any journal's settings
@@ -682,42 +811,81 @@ class MailSettingsPlugin extends GenericPlugin {
 			return true;
 		}
 
-		// Check for Journal Manager specifically (NOT Journal Editor)
-		// In OJS 3.3, both "Journal manager" and "Journal editor" share ROLE_ID_MANAGER.
-		// We need user_group level check to distinguish them.
-		// The Journal Manager group is the first ROLE_ID_MANAGER group created for each context.
 		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
 
-		// Get all ROLE_ID_MANAGER groups for this context
-		$managerGroups = $userGroupDao->getByRoleId($contextId, ROLE_ID_MANAGER);
-		$journalManagerGroupId = null;
-
-		while ($group = $managerGroups->next()) {
-			$abbrev = strtolower($group->getLocalizedAbbrev());
-			$name = strtolower($group->getLocalizedName());
-
-			// Identify Journal Manager by name/abbrev (works for EN and TR defaults)
-			if (strpos($name, 'manager') !== false || strpos($name, 'yönetici') !== false
-				|| strpos($abbrev, 'jm') !== false) {
-				$journalManagerGroupId = $group->getId();
-				break;
+		// Explicitly configured access groups take precedence. Only manager-role
+		// groups of this context are honoured, so a stale or tampered setting
+		// can never grant access beyond ROLE_ID_MANAGER.
+		$configured = $this->getSetting($contextId, 'accessUserGroups');
+		if (is_array($configured) && !empty($configured)) {
+			$managerGroups = $this->getManagerGroups($contextId);
+			foreach ($configured as $groupId) {
+				$groupId = (int)$groupId;
+				if (isset($managerGroups[$groupId]) && $userGroupDao->userInGroup($user->getId(), $groupId)) {
+					return true;
+				}
 			}
+			return false;
 		}
 
-		// Fallback: if no group matched by name, use the first ROLE_ID_MANAGER group
-		// (Journal Manager is always created before Journal Editor in default OJS)
-		if (!$journalManagerGroupId) {
-			$managerGroups = $userGroupDao->getByRoleId($contextId, ROLE_ID_MANAGER);
-			if ($firstGroup = $managerGroups->next()) {
-				$journalManagerGroupId = $firstGroup->getId();
-			}
-		}
-
+		// Default heuristic: Journal Manager group only (NOT Journal Editor)
+		$journalManagerGroupId = $this->detectJournalManagerGroupId($contextId);
 		if ($journalManagerGroupId) {
-			return $userGroupDao->userInGroup($user->getId(), $journalManagerGroupId);
+			return (bool)$userGroupDao->userInGroup($user->getId(), $journalManagerGroupId);
 		}
 
 		return false;
+	}
+
+	/**
+	 * Get all ROLE_ID_MANAGER user groups for a context.
+	 *
+	 * @param $contextId int
+	 * @return array groupId => localized group name
+	 */
+	public function getManagerGroups($contextId) {
+		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+		$groups = array();
+		$result = $userGroupDao->getByRoleId($contextId, ROLE_ID_MANAGER);
+		while ($group = $result->next()) {
+			$groups[(int)$group->getId()] = (string)$group->getLocalizedName();
+		}
+		return $groups;
+	}
+
+	/**
+	 * Identify the Journal Manager group for a context.
+	 *
+	 * In OJS 3.3 both "Journal manager" and "Journal editor" share
+	 * ROLE_ID_MANAGER; we distinguish them by name/abbrev (EN and TR
+	 * defaults), falling back to the first ROLE_ID_MANAGER group, which
+	 * default OJS installations create before Journal Editor.
+	 *
+	 * @param $contextId int
+	 * @return int|null
+	 */
+	public function detectJournalManagerGroupId($contextId) {
+		$userGroupDao = DAORegistry::getDAO('UserGroupDAO');
+
+		$managerGroups = $userGroupDao->getByRoleId($contextId, ROLE_ID_MANAGER);
+		while ($group = $managerGroups->next()) {
+			// (string) casts: getLocalizedAbbrev()/getLocalizedName() may return
+			// null, which strtolower() rejects with a deprecation on PHP 8.1
+			$abbrev = strtolower((string)$group->getLocalizedAbbrev());
+			$name = strtolower((string)$group->getLocalizedName());
+
+			if (strpos($name, 'manager') !== false || strpos($name, 'yönetici') !== false
+				|| strpos($abbrev, 'jm') !== false) {
+				return $group->getId();
+			}
+		}
+
+		$managerGroups = $userGroupDao->getByRoleId($contextId, ROLE_ID_MANAGER);
+		if ($firstGroup = $managerGroups->next()) {
+			return $firstGroup->getId();
+		}
+
+		return null;
 	}
 
 	// =========================================================================
@@ -728,7 +896,14 @@ class MailSettingsPlugin extends GenericPlugin {
 		$key = $this->_getEncryptionKey();
 		$iv = openssl_random_pseudo_bytes(openssl_cipher_iv_length('aes-256-cbc'));
 		$encrypted = openssl_encrypt($password, 'aes-256-cbc', $key, 0, $iv);
-		return base64_encode($iv . '::' . $encrypted);
+		if ($encrypted === false) {
+			error_log('MailSettings Plugin: password encryption failed.');
+			return '';
+		}
+		// v2 format: the IV is base64-encoded separately. The legacy format
+		// glued the raw binary IV to the ciphertext with "::", which the IV
+		// itself could randomly contain, silently corrupting decryption.
+		return 'v2:' . base64_encode($iv) . ':' . $encrypted;
 	}
 
 	public function decryptPassword($encryptedPassword) {
@@ -737,19 +912,35 @@ class MailSettingsPlugin extends GenericPlugin {
 		}
 
 		$key = $this->_getEncryptionKey();
-		$data = base64_decode($encryptedPassword);
 
+		// Current format: v2:<base64 iv>:<base64 ciphertext>
+		if (strncmp($encryptedPassword, 'v2:', 3) === 0) {
+			$parts = explode(':', $encryptedPassword, 3);
+			if (count($parts) === 3 && ($iv = base64_decode($parts[1], true)) !== false) {
+				$decrypted = openssl_decrypt($parts[2], 'aes-256-cbc', $key, 0, $iv);
+				if ($decrypted !== false) {
+					return $decrypted;
+				}
+			}
+			error_log('MailSettings Plugin: password decryption failed. If the database password changed, re-enter the SMTP password in the plugin settings.');
+			return '';
+		}
+
+		// Legacy format (<= v1.3.x): base64(rawIV . '::' . ciphertext)
+		$data = base64_decode($encryptedPassword);
 		if ($data === false || strpos($data, '::') === false) {
+			// Plain-text password stored by very old versions — use as-is
 			return $encryptedPassword;
 		}
 
 		$parts = explode('::', $data, 2);
-		if (count($parts) !== 2) {
-			return $encryptedPassword;
+		$decrypted = openssl_decrypt($parts[1], 'aes-256-cbc', $key, 0, $parts[0]);
+		if ($decrypted !== false) {
+			return $decrypted;
 		}
 
-		$decrypted = openssl_decrypt($parts[1], 'aes-256-cbc', $key, 0, $parts[0]);
-		return ($decrypted !== false) ? $decrypted : $encryptedPassword;
+		error_log('MailSettings Plugin: legacy password decryption failed. Re-enter the SMTP password in the plugin settings.');
+		return '';
 	}
 
 	private function _getEncryptionKey() {
@@ -823,9 +1014,10 @@ class MailSettingsPlugin extends GenericPlugin {
 				}
 			}
 
-			$siteName = Config::getVar('general', 'installed')
-				? Application::get()->getRequest()->getSite()->getLocalizedTitle()
-				: 'OJS';
+			$site = Config::getVar('general', 'installed')
+				? Application::get()->getRequest()->getSite()
+				: null;
+			$siteName = ($site && $site->getLocalizedTitle()) ? $site->getLocalizedTitle() : 'OJS';
 			$fromEmail = ($settings && !empty($settings['envelopeSender']))
 				? $settings['envelopeSender']
 				: (($settings && !empty($settings['smtpUsername']))

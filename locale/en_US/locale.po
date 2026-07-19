@@ -110,6 +110,9 @@ msgstr "Password is set"
 msgid "plugins.generic.mailSettings.smtp.showPassword"
 msgstr "👁 Show"
 
+msgid "plugins.generic.mailSettings.smtp.hidePassword"
+msgstr "🔒 Hide"
+
 # Advanced Settings
 msgid "plugins.generic.mailSettings.advanced.title"
 msgstr "Advanced Settings"
@@ -138,6 +141,12 @@ msgstr "Suppress SMTP SSL certificate verification"
 msgid "plugins.generic.mailSettings.advanced.notRecommended"
 msgstr "Not recommended"
 
+msgid "plugins.generic.mailSettings.advanced.accessGroups"
+msgstr "Access Permission"
+
+msgid "plugins.generic.mailSettings.advanced.accessGroupsDesc"
+msgstr "Select which manager-level user groups may manage these mail settings. Site Administrators always have access. If nothing is selected, the default rule applies (Journal Manager only)."
+
 # Test Mail
 msgid "plugins.generic.mailSettings.test.title"
 msgstr "Test Email"
@@ -153,6 +162,9 @@ msgstr "Send Test Email"
 
 msgid "plugins.generic.mailSettings.test.invalidEmail"
 msgstr "Please enter a valid email address."
+
+msgid "plugins.generic.mailSettings.test.sending"
+msgstr "Sending test email..."
 
 msgid "plugins.generic.mailSettings.test.usingDefault"
 msgstr "Using OJS default configuration (config.inc.php)..."
@@ -236,6 +248,12 @@ msgstr "Security token expired. Please refresh the page and try again."
 
 msgid "plugins.generic.mailSettings.error.invalidEnvelopeSender"
 msgstr "Envelope sender must be a valid email address."
+
+msgid "plugins.generic.mailSettings.error.parseError"
+msgstr "Error: Could not parse server response."
+
+msgid "plugins.generic.mailSettings.error.accessLockout"
+msgstr "You cannot remove your own access: at least one of the selected groups must be a group you belong to."
 
 msgid "plugins.generic.mailSettings.test.rateLimited"
 msgstr "Please wait {$seconds} seconds before sending another test email."

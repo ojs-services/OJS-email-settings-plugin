@@ -4,11 +4,43 @@
  * Copyright (c) 2026 OJS Services (ojs-services.com)
  * Distributed under the GNU GPL v3. For full terms see the file LICENSE.
  *
- * Email Settings plugin - standalone page interactions
+ * Email Settings plugin - settings page interactions.
+ *
+ * Timing note: this script is loaded with a plain <script src> at the end of
+ * the backend page block. The JSON config island is read IMMEDIATELY (during
+ * HTML parse, before OJS' Vue app mounts and re-renders the block), while all
+ * DOM listeners are attached on DOMContentLoaded (after the mount), so they
+ * bind to the final DOM nodes.
  */
 
 (function() {
 	'use strict';
+
+	// =========================================================================
+	// Config (parsed synchronously — see timing note above)
+	// =========================================================================
+
+	var mailSettingsConfig = {};
+	(function() {
+		var el = document.getElementById('mailSettingsConfigJson');
+		if (el) {
+			try {
+				mailSettingsConfig = JSON.parse(el.textContent) || {};
+			} catch (e) {
+				// leave defaults; msg() falls back to English strings
+			}
+		}
+	})();
+
+	/**
+	 * Translated string lookup with English fallback.
+	 */
+	function msg(key, fallback) {
+		if (mailSettingsConfig.i18n && mailSettingsConfig.i18n[key]) {
+			return mailSettingsConfig.i18n[key];
+		}
+		return fallback;
+	}
 
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', init);
@@ -43,11 +75,7 @@
 			radio.addEventListener('change', function() {
 				var isCustom = (this.value === 'custom');
 
-				if (isCustom) {
-					customPanel.classList.remove('ms-hidden');
-				} else {
-					customPanel.classList.add('ms-hidden');
-				}
+				customPanel.classList.toggle('ms-hidden', !isCustom);
 
 				if (optionDefault && optionCustom) {
 					optionDefault.classList.toggle('ms-source-active', !isCustom);
@@ -66,8 +94,8 @@
 				var statusText = document.getElementById('statusText');
 				if (statusText) {
 					statusText.textContent = isCustom
-						? 'Using Custom Mail Settings'
-						: 'Using OJS Default Configuration (config.inc.php)';
+						? msg('statusCustom', 'Using Custom Mail Settings')
+						: msg('statusDefault', 'Using OJS Default Configuration (config.inc.php)');
 				}
 			});
 		});
@@ -84,7 +112,7 @@
 		if (!methodSelect || !smtpPanel) return;
 
 		methodSelect.addEventListener('change', function() {
-			smtpPanel.style.display = (this.value === 'smtp') ? '' : 'none';
+			smtpPanel.classList.toggle('ms-hidden', this.value !== 'smtp');
 		});
 	}
 
@@ -114,44 +142,54 @@
 		};
 
 		var presetNotes = {
-			'gmail': '\u26A0\uFE0F Gmail requires an App Password (16 characters) instead of your regular password. Enable 2-Step Verification in your Google Account first, then generate an App Password at myaccount.google.com > Security > App Passwords.',
-			'office365': '\u26A0\uFE0F Office 365 requires SMTP AUTH to be enabled for the mailbox. Your admin may need to enable this in the Exchange admin center. Multi-Factor Authentication (MFA) may require an App Password.',
-			'yandex': '',
-			'zoho': '',
-			'custom': ''
+			'gmail': msg('noteGmail', 'Gmail requires an App Password instead of your regular password. Enable 2-Step Verification first.'),
+			'office365': msg('noteOffice365', 'Office 365 requires SMTP AUTH to be enabled for the mailbox.')
 		};
+
+		function activatePreset(card) {
+			var preset = card.getAttribute('data-preset');
+			var server = card.getAttribute('data-server');
+			var port = card.getAttribute('data-port');
+			var encryption = card.getAttribute('data-encryption');
+
+			presetCards.forEach(function(c) {
+				c.classList.remove('ms-preset-active');
+				c.setAttribute('aria-pressed', 'false');
+			});
+			card.classList.add('ms-preset-active');
+			card.setAttribute('aria-pressed', 'true');
+
+			// "Custom SMTP" restores the original saved values
+			if (preset === 'custom') {
+				document.getElementById('smtpServer').value = savedValues.smtpServer;
+				document.getElementById('smtpPort').value = savedValues.smtpPort;
+				document.getElementById('smtpEncryption').value = savedValues.smtpEncryption;
+			} else {
+				if (server) document.getElementById('smtpServer').value = server;
+				if (port) document.getElementById('smtpPort').value = port;
+				if (encryption) document.getElementById('smtpEncryption').value = encryption;
+			}
+
+			if (presetNote) {
+				var note = presetNotes[preset] || '';
+				if (note) {
+					presetNote.textContent = note;
+					presetNote.style.display = 'block';
+				} else {
+					presetNote.style.display = 'none';
+				}
+			}
+		}
 
 		presetCards.forEach(function(card) {
 			card.addEventListener('click', function() {
-				var preset = this.getAttribute('data-preset');
-				var server = this.getAttribute('data-server');
-				var port = this.getAttribute('data-port');
-				var encryption = this.getAttribute('data-encryption');
-
-				presetCards.forEach(function(c) {
-					c.classList.remove('ms-preset-active');
-				});
-				this.classList.add('ms-preset-active');
-
-				// "Custom SMTP" restores the original saved values
-				if (preset === 'custom') {
-					document.getElementById('smtpServer').value = savedValues.smtpServer;
-					document.getElementById('smtpPort').value = savedValues.smtpPort;
-					document.getElementById('smtpEncryption').value = savedValues.smtpEncryption;
-				} else {
-					if (server) document.getElementById('smtpServer').value = server;
-					if (port) document.getElementById('smtpPort').value = port;
-					if (encryption) document.getElementById('smtpEncryption').value = encryption;
-				}
-
-				if (presetNote) {
-					var note = presetNotes[preset] || '';
-					if (note) {
-						presetNote.innerHTML = escapeHtml(note);
-						presetNote.style.display = 'block';
-					} else {
-						presetNote.style.display = 'none';
-					}
+				activatePreset(this);
+			});
+			// Keyboard support: cards are focusable div[role=button]
+			card.addEventListener('keydown', function(event) {
+				if (event.key === 'Enter' || event.key === ' ' || event.key === 'Spacebar') {
+					event.preventDefault();
+					activatePreset(this);
 				}
 			});
 		});
@@ -167,6 +205,9 @@
 
 		if (!toggleBtn || !passwordField) return;
 
+		var showLabel = msg('showPassword', '👁 Show');
+		var hideLabel = msg('hidePassword', '🔒 Hide');
+
 		// Hide the toggle button initially — it only makes sense
 		// when the user is typing a new password. The saved password
 		// is never sent back from the server.
@@ -176,17 +217,17 @@
 			toggleBtn.style.display = this.value.length ? '' : 'none';
 			if (!this.value.length) {
 				this.type = 'password';
-				toggleBtn.textContent = '\uD83D\uDC41 Show';
+				toggleBtn.textContent = showLabel;
 			}
 		});
 
 		toggleBtn.addEventListener('click', function() {
 			if (passwordField.type === 'password') {
 				passwordField.type = 'text';
-				this.textContent = '\uD83D\uDD12 Hide';
+				this.textContent = hideLabel;
 			} else {
 				passwordField.type = 'password';
-				this.textContent = '\uD83D\uDC41 Show';
+				this.textContent = showLabel;
 			}
 		});
 	}
@@ -200,6 +241,13 @@
 		var form = document.getElementById('mailSettingsForm');
 
 		if (!saveBtn || !form) return;
+
+		// Pressing Enter in a text input must trigger the AJAX save,
+		// not a native form submission.
+		form.addEventListener('submit', function(event) {
+			event.preventDefault();
+			saveBtn.click();
+		});
 
 		saveBtn.addEventListener('click', function() {
 			var formData = new FormData(form);
@@ -239,7 +287,7 @@
 							window._msUpdateSavedValues();
 						}
 					} catch (e) {
-						showNotification('Error: Could not parse server response.', false);
+						showNotification(msg('parseError', 'Error: Could not parse server response.'), false);
 					}
 				}
 			};
@@ -259,17 +307,29 @@
 
 		if (!sendBtn || !emailInput || !resultsDiv) return;
 
+		// Preserve the localized button label so it can be restored after
+		// the request completes (previously a hardcoded English string
+		// permanently replaced the translation).
+		var idleLabel = sendBtn.innerHTML;
+		var sendingLabel = msg('sending', 'Sending test email...');
+
 		sendBtn.addEventListener('click', function() {
 			var email = emailInput.value.trim();
 			if (!email) {
-				alert('Please enter an email address.');
+				showNotification(msg('enterEmail', 'Please enter a valid email address.'), false);
+				emailInput.focus();
 				return;
 			}
 
 			resultsDiv.style.display = 'block';
-			resultsDiv.innerHTML = '<div class="ms-test-step ms-test-step-info">\u231B Sending test email...</div>';
+			resultsDiv.innerHTML = '';
+			var sendingStep = document.createElement('div');
+			sendingStep.className = 'ms-test-step ms-test-step-info';
+			sendingStep.textContent = '⌛ ' + sendingLabel;
+			resultsDiv.appendChild(sendingStep);
+
 			sendBtn.disabled = true;
-			sendBtn.innerHTML = '\u231B Sending...';
+			sendBtn.textContent = '⌛ ' + sendingLabel;
 
 			var formData = new FormData();
 			formData.append('testEmail', email);
@@ -285,13 +345,17 @@
 			xhr.onreadystatechange = function() {
 				if (xhr.readyState === 4) {
 					sendBtn.disabled = false;
-					sendBtn.innerHTML = '&#9993; Send Test Email';
+					sendBtn.innerHTML = idleLabel;
 
 					try {
 						var data = JSON.parse(xhr.responseText);
 						displayTestResults(data, resultsDiv);
 					} catch (e) {
-						resultsDiv.innerHTML = '<div class="ms-test-step ms-test-step-error">\u274C Error: Could not parse server response.</div>';
+						resultsDiv.innerHTML = '';
+						var errStep = document.createElement('div');
+						errStep.className = 'ms-test-step ms-test-step-error';
+						errStep.textContent = '❌ ' + msg('parseError', 'Error: Could not parse server response.');
+						resultsDiv.appendChild(errStep);
 					}
 				}
 			};
@@ -306,16 +370,16 @@
 		if (data.steps && data.steps.length) {
 			data.steps.forEach(function(step) {
 				var cls = 'ms-test-step-info';
-				var icon = '\u2139\uFE0F';
-				if (step.status === 'success') { cls = 'ms-test-step-success'; icon = '\u2713'; }
-				if (step.status === 'error') { cls = 'ms-test-step-error'; icon = '\u2717'; }
+				var icon = 'ℹ️';
+				if (step.status === 'success') { cls = 'ms-test-step-success'; icon = '✓'; }
+				if (step.status === 'error') { cls = 'ms-test-step-error'; icon = '✗'; }
 				html += '<div class="ms-test-step ' + cls + '">' + icon + ' ' + escapeHtml(step.message) + '</div>';
 			});
 		}
 
 		if (data.message) {
 			var finalCls = data.success ? 'ms-test-step-success' : 'ms-test-step-error';
-			var finalIcon = data.success ? '\u2705' : '\u274C';
+			var finalIcon = data.success ? '✅' : '❌';
 			html += '<div class="ms-test-step ms-test-final ' + finalCls + '">' + finalIcon + ' ' + escapeHtml(data.message) + '</div>';
 		}
 
