@@ -82,8 +82,13 @@ class MailSettingsPlugin extends GenericPlugin {
 	// =========================================================================
 
 	/**
-	 * Add a link to the OJS backend sidebar for admin/manager users.
-	 * Uses unified sidebar pattern shared across all OJS Services plugins.
+	 * Add an "Email Settings" entry to the OJS backend navigation menu.
+	 *
+	 * The entry is added to the Vue 'menu' state that setupBackendPage()
+	 * builds for every backend handler, so it renders exactly like the
+	 * core menu items (no icons, no custom styles, native active state)
+	 * and appears on all backend pages, including other plugins'
+	 * management pages.
 	 *
 	 * @param $hookName string
 	 * @param $args array
@@ -92,22 +97,11 @@ class MailSettingsPlugin extends GenericPlugin {
 	public function addSidebarLink($hookName, $args) {
 		$templateMgr = $args[0];
 
-		// Backend detection: setupBackendPage() populates the 'menu' Vue
-		// state on every backend handler (core pages AND all plugin
-		// management pages) and never on the frontend — so no manual
-		// whitelist of template paths / page names is needed, and the link
-		// no longer disappears on other plugins' management pages.
+		// Backend detection: the 'menu' state only exists on backend pages.
+		// The isset() guard keeps the hook idempotent across the multiple
+		// display calls of a single request.
 		$menu = $templateMgr->getState('menu');
-		if (!is_array($menu) || empty($menu)) {
-			return false;
-		}
-
-		// The display hook fires for every template (components, AJAX
-		// fragments) — inject the script only once per request. Checked
-		// after backend detection so a non-backend display call can never
-		// consume the guard.
-		static $injected = false;
-		if ($injected) {
+		if (!is_array($menu) || empty($menu) || isset($menu['mailSettings'])) {
 			return false;
 		}
 
@@ -117,51 +111,24 @@ class MailSettingsPlugin extends GenericPlugin {
 			return false;
 		}
 
-		$contextId = $context->getId();
-		$user = $request->getUser();
-		if (!$this->userHasAccess($user, $contextId)) {
+		// Component (AJAX) requests use a router without page URLs
+		$router = $request->getRouter();
+		if (strpos(get_class($router), 'PageRouter') === false) {
 			return false;
 		}
 
-		$router = $request->getRouter();
-		$dispatcher = $router->getDispatcher();
-		$url = $dispatcher->url($request, ROUTE_PAGE, null, 'mailSettings');
+		$user = $request->getUser();
+		if (!$this->userHasAccess($user, $context->getId())) {
+			return false;
+		}
 
-		$menuLabel = __('plugins.generic.mailSettings.sidebar.label');
-
-		$templateMgr->addJavaScript(
-			'mailSettingsSidebar',
-			'(function(){' .
-			'var S=window.OJS_SIDEBAR_ITEMS=window.OJS_SIDEBAR_ITEMS||[];' .
-			'S.push({id:"mailSettingsSidebarLink",icon:"\\u2709\\uFE0F",text:' . json_encode($menuLabel) . ',url:' . json_encode($url) . ',pg:"mailSettings",p:50});' .
-			'if(!window._ojsSbRender){window._ojsSbRender=function(){' .
-			'var items=window.OJS_SIDEBAR_ITEMS;if(!items||!items.length)return;' .
-			'var nav=document.querySelector(".pkp_nav_list,.app__nav,nav[role=navigation] ul,.pkpNav__list");' .
-			'if(!nav)nav=document.querySelector("#navigationPrimary ul,.pkp_navigation_primary ul");' .
-			'if(!nav){if(!window._ojsSbR)window._ojsSbR=0;if(window._ojsSbR++<30)setTimeout(window._ojsSbRender,200);return;}' .
-			'window._ojsSbR=0;if(nav.tagName==="NAV"){var ul=nav.querySelector("ul");if(ul)nav=ul;}' .
-			'var old=nav.querySelectorAll("[data-ojs-sidebar]");for(var i=0;i<old.length;i++)old[i].parentNode.removeChild(old[i]);' .
-			'items.sort(function(a,b){return(a.p||99)-(b.p||99);});' .
-			'var sep=document.createElement("li");sep.setAttribute("data-ojs-sidebar","1");' .
-			'sep.style.cssText="border-top:1px solid rgba(255,255,255,0.15);margin:12px 0 6px;padding:0;list-style:none;";nav.appendChild(sep);' .
-			'var u=window.location.href;items.forEach(function(it){' .
-			'var li=document.createElement("li");li.id=it.id;li.setAttribute("data-ojs-sidebar","1");' .
-			'var a=document.createElement("a");a.className="app__navItem";a.href=it.url;a.innerHTML=it.icon+" "+it.text;' .
-			// No inline color: inline styles would override the theme rules
-			// (.app__navItem is dark text; --isCurrent flips to white on dark).
-			'a.style.cssText="display:flex;align-items:center;gap:8px;padding:8px 16px;text-decoration:none;font-size:0.9em;font-weight:600;";' .
-			'if(u.indexOf(it.pg)>-1){a.classList.add("app__navItem--isCurrent");}' .
-			'li.appendChild(a);nav.appendChild(li);});};}' .
-			'clearTimeout(window._ojsSbT);window._ojsSbT=setTimeout(window._ojsSbRender,100);' .
-			'if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",function(){clearTimeout(window._ojsSbT);window._ojsSbT=setTimeout(window._ojsSbRender,100);});}' .
-			'})();',
-			array(
-				'inline' => true,
-				'contexts' => array('backend')
-			)
+		$dispatcher = $request->getDispatcher();
+		$menu['mailSettings'] = array(
+			'name' => __('plugins.generic.mailSettings.sidebar.label'),
+			'url' => $dispatcher->url($request, ROUTE_PAGE, null, 'mailSettings'),
+			'isCurrent' => ($router->getRequestedPage($request) === 'mailSettings'),
 		);
-
-		$injected = true;
+		$templateMgr->setState(array('menu' => $menu));
 
 		return false;
 	}

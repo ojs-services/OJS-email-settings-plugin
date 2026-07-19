@@ -67,6 +67,9 @@ The plugin hooks into the OJS mail sending process and takes full control when c
 
 ## Changelog
 
+### v1.4.2.0
+- Sidebar link is now a native OJS menu entry (added to the backend Vue menu state, like core items): plain text, no icon, standard styling and active state; the JavaScript DOM-injection approach was removed entirely
+
 ### v1.4.1.0
 - Sidebar link now appears on every backend page, including other plugins' management pages (backend detection switched from a fragile page/template whitelist to OJS' own `setupBackendPage()` menu state)
 - Active sidebar link is now readable: inline color override removed so the theme's own `.app__navItem--isCurrent` rule (white on dark) applies
